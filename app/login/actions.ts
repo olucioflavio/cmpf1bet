@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
-export async function login(formData: FormData) {
+export async function login(formData: FormData): Promise<void> {
     const supabase = await createClient()
 
     let email = formData.get('email') as string
@@ -25,21 +25,21 @@ export async function login(formData: FormData) {
 
     if (error) {
         console.error('Login error:', error)
-        return redirect('/login?message=Could not authenticate user')
+        redirect('/login?message=Could not authenticate user')
     }
 
     console.log('Login successful')
     revalidatePath('/', 'layout')
-    return redirect('/')
+    redirect('/')
 }
 
-export async function signup(formData: FormData) {
+export async function signup(formData: FormData): Promise<void> {
     // Public signup is disabled
-    return redirect('/login?message=Sign up is disabled')
+    redirect('/login?message=Sign up is disabled')
 }
 
-export async function signOut() {
+export async function signOut(): Promise<void> {
     const supabase = await createClient()
     await supabase.auth.signOut()
-    return redirect('/login')
+    redirect('/login')
 }

@@ -3,13 +3,12 @@
 import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
-export async function createUser(formData: FormData) {
+export async function createUser(formData: FormData): Promise<void> {
     const supabase = createAdminClient()
     const username = formData.get('username') as string
     const password = formData.get('password') as string
 
     if (!username || !password) {
-        // return { error: 'Username and password are required' }
         return
     }
 
@@ -25,17 +24,14 @@ export async function createUser(formData: FormData) {
 
     if (authError) {
         console.error('Error creating auth user:', authError)
-        // return { error: authError.message }
         return
     }
 
     if (!authData.user) {
-        // return { error: 'User creation failed' }
         return
     }
 
-    // 2. Create profile (sometimes triggers handle this, but explicit is safer if trigger missing)
-    // We'll use upsert just in case a trigger already ran
+    // 2. Create profile
     const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
@@ -47,34 +43,26 @@ export async function createUser(formData: FormData) {
 
     if (profileError) {
         console.error('Error creating profile:', profileError)
-        // Cleanup auth user if profile fails? 
-        // For now, let's just report error. Auth user exists though.
-        // return { error: 'User created but profile failed: ' + profileError.message }
     }
 
     revalidatePath('/admin/users')
-    // return { success: `User ${username} created successfully` }
 }
 
-export async function deleteUser(userId: string) {
+export async function deleteUser(userId: string): Promise<void> {
     const supabase = createAdminClient()
 
-    // 1. Delete from Auth (Cascade should handle profile if set up, but let's see)
-    // Usually deleting from auth.users cascades to profiles if FK is correct.
     const { error } = await supabase.auth.admin.deleteUser(userId)
 
     if (error) {
         console.error('Error deleting user:', error)
-        // return { error: error.message }
     }
 
     revalidatePath('/admin/users')
-    // return { success: 'User deleted' }
 }
 
-// --- Race Management Actions (Restored) ---
+// --- Race Management Actions ---
 
-export async function updateRaceStatus(raceId: number, status: string) {
+export async function updateRaceStatus(raceId: number, status: string): Promise<void> {
     const supabase = createAdminClient()
     const { error } = await supabase
         .from('races')
@@ -83,13 +71,12 @@ export async function updateRaceStatus(raceId: number, status: string) {
 
     if (error) {
         console.error('Error updating race status:', error)
-        // return { error: error.message } // Cannot return object to form action in strict mode
     }
 
     revalidatePath('/admin')
 }
 
-export async function setVariableDriver(raceId: number, driverId: number) {
+export async function setVariableDriver(raceId: number, driverId: number): Promise<void> {
     const supabase = createAdminClient()
     const { error } = await supabase
         .from('races')
@@ -98,7 +85,6 @@ export async function setVariableDriver(raceId: number, driverId: number) {
 
     if (error) {
         console.error('Error setting variable driver:', error)
-        // return { error: error.message }
     }
 
     revalidatePath('/admin')

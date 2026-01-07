@@ -4,12 +4,12 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-export async function placeBet(raceId: number, formData: FormData): Promise<void> {
+export async function placeBet(raceId: number, formData: FormData) {
     const supabase = await createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-        return redirect('/login')
+        redirect('/login')
     }
 
     const pole = formData.get('pole')
@@ -58,9 +58,7 @@ export async function placeBet(raceId: number, formData: FormData): Promise<void
 
     if (error) {
         console.error('Error placing bet:', error)
-        // return { error: 'Failed to place bet' }
     }
 
     revalidatePath(`/race/${raceId}`)
-    // return { success: true }
 }
