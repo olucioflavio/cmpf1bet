@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-export async function placeBet(raceId: number, formData: FormData): Promise<void> {
+export async function submitRaceBet(formData: FormData): Promise<void> {
     const supabase = await createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
@@ -12,6 +12,7 @@ export async function placeBet(raceId: number, formData: FormData): Promise<void
         redirect('/login')
     }
 
+    const raceId = parseInt(formData.get('raceId') as string)
     const pole = formData.get('pole')
     const p1 = formData.get('p1')
     const p2 = formData.get('p2')
