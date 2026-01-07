@@ -1,9 +1,12 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import { CalendarIcon, MapPinIcon } from 'lucide-react'
+import { CalendarIcon, MapPinIcon, ChevronRightIcon, ClockIcon } from 'lucide-react'
+import NewsSection from '@/components/NewsSection'
 
 export default async function Index() {
   const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
 
   // Fetch races sorted by date
   const { data: races } = await supabase
@@ -11,57 +14,165 @@ export default async function Index() {
     .select('*')
     .order('date', { ascending: true })
 
+  // Find next race (first future race)
+  const now = new Date()
+  const nextRace = races?.find(r => new Date(r.date) > now && r.status === 'open') || races?.[0]
+
+  // Format date for the next race countdown style
+  const nextRaceDate = nextRace ? new Date(nextRace.date) : null
+
   return (
-    <div className="flex-1 w-full flex flex-col gap-8 items-center py-10 px-4">
-      <div className="w-full max-w-4xl space-y-8">
-        <h1 className="text-3xl font-bold text-center tracking-tight">F1 2026 Season</h1>
+    <div className="flex-1 w-full flex flex-col gap-8 items-center py-8 px-4 md:px-8">
+      <div className="w-full max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {races?.map((race) => (
-            <div
-              key={race.id}
-              className={`border border-gray-800 rounded-lg p-5 bg-gray-900 transition hover:border-gray-600 ${race.status === 'open' ? 'ring-1 ring-green-500/50' : ''}`}
-            >
-              <div className="flex justify-between items-start mb-4">
-                <span className={`text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${race.status === 'open' ? 'bg-green-900 text-green-300' :
-                    race.status === 'finished' ? 'bg-gray-800 text-gray-500' : 'bg-blue-900 text-blue-300'
-                  }`}>
-                  {race.status}
-                </span>
-                <span className="text-xs text-gray-400 font-mono">R{race.id}</span>
-              </div>
-
-              <h2 className="text-xl font-bold mb-2 truncate">{race.name}</h2>
-
-              <div className="text-sm text-gray-400 space-y-1 mb-6">
-                <div className="flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4" />
-                  <span>{new Date(race.date).toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPinIcon className="w-4 h-4" />
-                  <span className="truncate">{race.track}</span>
-                </div>
-              </div>
-
-              {race.status === 'open' ? (
-                <Link
-                  href={`/race/${race.id}`}
-                  className="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded transition"
-                >
-                  Place Bet
-                </Link>
-              ) : (
-                <button
-                  disabled
-                  className="block w-full text-center bg-gray-800 text-gray-500 font-medium py-2 rounded cursor-not-allowed"
-                >
-                  {race.status === 'finished' ? 'Results' : 'Locked'}
-                </button>
-              )}
+        {/* Header */}
+        <header className="mb-10 flex flex-col md:flex-row justify-between items-end gap-4">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-2">
+              Bem-vindo de volta, <span className="text-f1-red">{user?.email?.split('@')[0] || 'Pitaqueiro'}</span>
+            </h1>
+            <p className="text-gray-400">Pronto para apostar na temporada 2026?</p>
+          </div>
+          <div className="hidden md:block">
+            <div className="text-right">
+              <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">Status da Temporada</span>
+              <p className="text-xl font-bold text-white">Rodada {nextRace?.id || 1} / {races?.length || 24}</p>
             </div>
-          ))}
+          </div>
+        </header>
+
+        {/* Hero Section - Next Race */}
+        {nextRace && (
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="md:col-span-2 glass-panel p-8 rounded-3xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-f1-red/20 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
+
+              <div className="relative z-10 flex flex-col h-full justify-between">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="inline-block px-3 py-1 rounded-full bg-f1-red/10 text-f1-red text-xs font-bold uppercase tracking-wider mb-3 border border-f1-red/20">
+                      Próxima Corrida
+                    </span>
+                    <h2 className="text-3xl md:text-5xl font-black italic text-white mb-1 uppercase">
+                      {nextRace.name}
+                    </h2>
+                    <div className="flex items-center gap-2 text-gray-300">
+                      <MapPinIcon className="w-4 h-4 text-f1-red" />
+                      <span className="font-medium">{nextRace.track}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex flex-col sm:flex-row gap-6 items-end justify-between">
+                  <div className="flex gap-4">
+                    <div className="text-center">
+                      <span className="block text-4xl font-bold text-white font-mono">
+                        {nextRaceDate?.getDate().toString().padStart(2, '0')}
+                      </span>
+                      <span className="text-xs text-gray-400 uppercase">Dia</span>
+                    </div>
+                    <span className="text-2xl font-bold text-gray-600 self-center">:</span>
+                    <div className="text-center">
+                      <span className="block text-4xl font-bold text-white font-mono">
+                        {nextRaceDate?.getHours().toString().padStart(2, '0')}
+                      </span>
+                      <span className="text-xs text-gray-400 uppercase">Hora</span>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/race/${nextRace.id}`}
+                    className="group/btn relative px-8 py-3 bg-f1-red text-white font-bold rounded-xl overflow-hidden transition-transform hover:scale-105 active:scale-95"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      Apostar Agora <ChevronRightIcon className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Odds / Mini Stats Card */}
+            <div className="glass-panel p-6 rounded-3xl flex flex-col justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-white mb-4">Estatísticas Rápidas</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                    <span className="text-sm text-gray-400">Suas apostas</span>
+                    <span className="font-mono font-bold text-white">0</span>
+                  </div>
+                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                    <span className="text-sm text-gray-400">Ganhos na Temporada</span>
+                    <span className="font-mono font-bold text-green-400">$0.00</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/5">
+                <p className="text-xs text-gray-400 mb-2">Dica do dia</p>
+                <p className="text-sm italic text-gray-200">"Monza favorece alta velocidade. Fique de olho na Williams."</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content - Upcoming Races */}
+          <div className="lg:col-span-2 space-y-6">
+            <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+              <CalendarIcon className="w-5 h-5 text-f1-red" /> Calendário da Temporada
+            </h3>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {races?.filter(r => r.id !== nextRace?.id).map((race) => (
+                <div
+                  key={race.id}
+                  className={`glass-panel p-5 rounded-2xl transition hover:border-white/20 group relative ${race.status === 'open' ? '' : 'opacity-60 grayscale'}`}
+                >
+                  <div className="absolute top-4 right-4">
+                    {race.status === 'open' ? (
+                      <span className="w-2 h-2 rounded-full bg-green-500 block shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                    ) : (
+                      <span className="text-[10px] font-bold uppercase text-gray-500 border border-gray-700 px-2 py-0.5 rounded">
+                        {race.status}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-xs text-gray-500 font-mono mb-1">Rodada {race.id}</p>
+                    <h4 className="text-lg font-bold text-white truncate group-hover:text-f1-red transition-colors">{race.name}</h4>
+                    <p className="text-sm text-gray-400 flex items-center gap-1 mt-1">
+                      <MapPinIcon className="w-3 h-3" /> {race.track}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-4 md:mt-6">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 bg-white/5 px-2 py-1 rounded">
+                      <CalendarIcon className="w-3 h-3" />
+                      {new Date(race.date).toLocaleDateString()}
+                    </div>
+
+                    {race.status === 'open' && (
+                      <Link
+                        href={`/race/${race.id}`}
+                        className="text-xs font-bold text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        Apostar
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sidebar - News */}
+          <div className="lg:col-span-1">
+            <NewsSection />
+          </div>
         </div>
+
       </div>
     </div>
   )

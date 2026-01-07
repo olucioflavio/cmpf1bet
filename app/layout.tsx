@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "F1 Betting App",
-  description: "Bet on F1 2026 races",
+  title: "CPMF1 Bet",
+  description: "Aposte nas corridas de F1 2026",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-black text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <Navbar />
         <main className="flex-1 flex flex-col w-full items-center">

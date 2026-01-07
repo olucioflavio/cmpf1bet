@@ -23,7 +23,7 @@ export default async function Navbar() {
         <nav className="w-full flex justify-center border-b border-b-gray-800 h-16 bg-gray-950 text-white">
             <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm">
                 <Link href="/" className="font-bold text-xl tracking-tighter hover:text-red-500 transition-colors">
-                    F1<span className="text-red-600">BET</span>
+                    CPMF1<span className="text-red-600">Bet</span>
                 </Link>
                 <div className="flex gap-4 items-center">
                     {user ? (
@@ -36,7 +36,7 @@ export default async function Navbar() {
                             <span className="text-gray-400 hidden sm:block">{user.email}</span>
                             <form action={signOut}>
                                 <button className="bg-red-600 hover:bg-red-700 transition px-3 py-1 rounded text-white text-xs font-medium uppercase tracking-wider">
-                                    Logout
+                                    Sair
                                 </button>
                             </form>
                         </div>
@@ -45,7 +45,7 @@ export default async function Navbar() {
                             href="/login"
                             className="bg-blue-600 hover:bg-blue-700 transition px-3 py-1 rounded text-white text-xs font-medium uppercase tracking-wider"
                         >
-                            Login
+                            Entrar
                         </Link>
                     )}
                 </div>
