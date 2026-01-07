@@ -10,10 +10,10 @@ export async function login(formData: FormData): Promise<void> {
     let email = formData.get('email') as string
     const password = formData.get('password') as string
 
-    // Mapping for admin user
-    if (email === 'admin') {
-        console.log('Mapping "admin" user to admin@cmpf1bet.local')
-        email = 'admin@cmpf1bet.local'
+    // Check if input is username or email
+    if (!email.includes('@')) {
+        console.log(`Appending domain to username: ${email}`)
+        email = `${email}@cmpf1bet.local`
     }
 
     console.log(`Attempting login for: ${email}`)

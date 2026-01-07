@@ -23,7 +23,7 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
     const drivers = driversResult.data || []
     const userBet = betResult.data
 
-    if (!race) return <div>Race not found</div>
+    if (!race) return <div>Corrida não encontrada</div>
 
     const isClosed = race.status !== 'open'
     const variableDriver = race.variable_driver
@@ -38,6 +38,15 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
                 </div>
             </div>
 
+            {race.is_test_race && (
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                    <p className="text-yellow-400 text-sm font-semibold flex items-center gap-2">
+                        <span className="text-lg">⚠️</span>
+                        <span>Esta é uma <strong>corrida de teste</strong> e não contará pontos para a temporada oficial.</span>
+                    </p>
+                </div>
+            )}
+
             <form action={submitRaceBet} className="flex flex-col gap-6">
                 <input type="hidden" name="raceId" value={raceId} />
 
@@ -51,7 +60,7 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
                         className="w-full p-3 rounded bg-gray-900 border border-gray-700 focus:border-purple-500 outline-none"
                         required
                     >
-                        <option value="">Select Driver</option>
+                        <option value="">Selecione o Piloto</option>
                         {drivers.map(d => (
                             <option key={d.id} value={d.id}>{d.name} ({d.team})</option>
                         ))}
@@ -60,7 +69,7 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
 
                 {/* Top 5 */}
                 <div className="space-y-4 border rounded-lg p-4 border-gray-800 bg-gray-900/30">
-                    <h3 className="text-lg font-semibold text-blue-400">Top 5 Finishers</h3>
+                    <h3 className="text-lg font-semibold text-blue-400">Top 5 Chegada</h3>
                     {[1, 2, 3, 4, 5].map(pos => (
                         <div key={pos} className="flex gap-4 items-center">
                             <span className="w-8 font-bold text-gray-500">P{pos}</span>
@@ -71,7 +80,7 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
                                 className="flex-1 p-2 rounded bg-gray-900 border border-gray-700 focus:border-blue-500 outline-none"
                                 required
                             >
-                                <option value="">Select Driver</option>
+                                <option value="">Selecione o Piloto</option>
                                 {drivers.map(d => (
                                     <option key={d.id} value={d.id}>{d.name} ({d.team})</option>
                                 ))}
@@ -84,8 +93,8 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Bortoleto */}
                     <div className="space-y-2 border rounded-lg p-4 border-gray-800 bg-gray-900/30">
-                        <label className="text-lg font-semibold text-yellow-400">Bortoleto Position</label>
-                        <p className="text-xs text-gray-500 mb-2">Gabriel Bortoleto final position</p>
+                        <label className="text-lg font-semibold text-yellow-400">Posição Bortoleto</label>
+                        <p className="text-xs text-gray-500 mb-2">Posição final de Gabriel Bortoleto</p>
                         <input
                             type="number"
                             min="1"
@@ -103,7 +112,7 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
                     {variableDriver && (
                         <div className="space-y-2 border rounded-lg p-4 border-gray-800 bg-gray-900/30">
                             <label className="text-lg font-semibold text-orange-400">{variableDriver.name}</label>
-                            <p className="text-xs text-gray-500 mb-2">Variable Driver final position</p>
+                            <p className="text-xs text-gray-500 mb-2">Posição final do piloto variável</p>
                             <input
                                 type="number"
                                 min="1"
@@ -121,7 +130,7 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
 
                 {!isClosed && (
                     <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg mt-4 transition">
-                        {userBet ? 'Update Bet' : 'Place Bet'}
+                        {userBet ? 'Atualizar Aposta' : 'Fazer Aposta'}
                     </button>
                 )}
             </form>

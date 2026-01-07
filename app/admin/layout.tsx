@@ -32,11 +32,11 @@ export default async function AdminLayout({
         <div className="flex flex-col min-h-screen">
             <header className="bg-slate-900 text-white p-4">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <h1 className="text-xl font-bold">Admin Dashboard</h1>
+                    <h1 className="text-xl font-bold">Painel Administrativo</h1>
                     <nav className="flex gap-4">
-                        <Link href="/admin" className="hover:text-green-400">Races</Link>
-                        <Link href="/admin/users" className="hover:text-green-400">Users</Link>
-                        <Link href="/" className="hover:text-green-400">Back to Site</Link>
+                        <Link href="/admin" className="hover:text-green-400">Corridas</Link>
+                        <Link href="/admin/users" className="hover:text-green-400">Usuários</Link>
+                        <Link href="/" className="hover:text-green-400">Voltar ao Site</Link>
                     </nav>
                 </div>
             </header>

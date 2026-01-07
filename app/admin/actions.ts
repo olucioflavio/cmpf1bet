@@ -2,50 +2,56 @@
 
 import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 export async function createUser(formData: FormData): Promise<void> {
     const supabase = createAdminClient()
     const username = formData.get('username') as string
+    const fullName = formData.get('fullName') as string
+    const email = formData.get('email') as string
     const password = formData.get('password') as string
 
-    if (!username || !password) {
-        return
+    if (!username || !password || !fullName || !email) {
+        redirect('/admin/users?error=missing_fields')
     }
 
-    const email = `${username}@cmpf1bet.local`
-
+    // Use the provided email instead of generating one
     // 1. Create user in Auth
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
         password,
         email_confirm: true,
-        user_metadata: { role: 'user' } // Default role
+        user_metadata: { role: 'user' }
     })
 
     if (authError) {
         console.error('Error creating auth user:', authError)
-        return
+        redirect(`/admin/users?error=${encodeURIComponent(authError.message)}`)
     }
 
     if (!authData.user) {
-        return
+        redirect('/admin/users?error=no_user_data')
     }
 
-    // 2. Create profile
+    // 2. Create profile with all fields
     const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
             id: authData.user.id,
             username: username,
+            full_name: fullName,
+            email: email,
             role: 'user',
             points: 0
         })
 
     if (profileError) {
         console.error('Error creating profile:', profileError)
+        redirect(`/admin/users?error=${encodeURIComponent(profileError.message)}`)
     }
 
     revalidatePath('/admin/users')
+    redirect('/admin/users?success=true')
 }
 
 export async function deleteUser(userId: string): Promise<void> {

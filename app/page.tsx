@@ -14,6 +14,10 @@ export default async function Index() {
     .select('*')
     .order('date', { ascending: true })
 
+
+  // Separate test races from official races
+  const officialRaces = races?.filter(r => !r.is_test_race) || []
+
   // Find next race (first future race)
   const now = new Date()
   const nextRace = races?.find(r => new Date(r.date) > now && r.status === 'open') || races?.[0]
@@ -36,7 +40,7 @@ export default async function Index() {
           <div className="hidden md:block">
             <div className="text-right">
               <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">Status da Temporada</span>
-              <p className="text-xl font-bold text-white">Rodada {nextRace?.id || 1} / {races?.length || 24}</p>
+              <p className="text-xl font-bold text-white">Rodada {officialRaces.length > 0 ? (nextRace?.is_test_race ? 0 : officialRaces.findIndex(r => r.id === nextRace?.id) + 1 || 1) : 1} / {officialRaces.length || 22}</p>
             </div>
           </div>
         </header>
@@ -50,9 +54,16 @@ export default async function Index() {
               <div className="relative z-10 flex flex-col h-full justify-between">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="inline-block px-3 py-1 rounded-full bg-f1-red/10 text-f1-red text-xs font-bold uppercase tracking-wider mb-3 border border-f1-red/20">
-                      Próxima Corrida
-                    </span>
+                    <div className="flex gap-2 items-center mb-3">
+                      <span className="inline-block px-3 py-1 rounded-full bg-f1-red/10 text-f1-red text-xs font-bold uppercase tracking-wider border border-f1-red/20">
+                        Próxima Corrida
+                      </span>
+                      {nextRace.is_test_race && (
+                        <span className="inline-block px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 text-xs font-bold uppercase tracking-wider border border-yellow-500/20">
+                          Teste - Não Conta Pontos
+                        </span>
+                      )}
+                    </div>
                     <h2 className="text-3xl md:text-5xl font-black italic text-white mb-1 uppercase">
                       {nextRace.name}
                     </h2>
@@ -64,21 +75,31 @@ export default async function Index() {
                 </div>
 
                 <div className="mt-8 flex flex-col sm:flex-row gap-6 items-end justify-between">
-                  <div className="flex gap-4">
-                    <div className="text-center">
-                      <span className="block text-4xl font-bold text-white font-mono">
-                        {nextRaceDate?.getDate().toString().padStart(2, '0')}
-                      </span>
-                      <span className="text-xs text-gray-400 uppercase">Dia</span>
-                    </div>
-                    <span className="text-2xl font-bold text-gray-600 self-center">:</span>
-                    <div className="text-center">
-                      <span className="block text-4xl font-bold text-white font-mono">
-                        {nextRaceDate?.getHours().toString().padStart(2, '0')}
-                      </span>
-                      <span className="text-xs text-gray-400 uppercase">Hora</span>
-                    </div>
-                  </div>
+                  {(() => {
+                    const now = new Date()
+                    const raceTime = nextRaceDate ? new Date(nextRaceDate) : now
+                    const diffMs = raceTime.getTime() - now.getTime()
+                    const daysRemaining = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+                    const hoursRemaining = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+
+                    return (
+                      <div className="flex gap-4">
+                        <div className="text-center">
+                          <span className="block text-4xl font-bold text-white font-mono">
+                            {daysRemaining.toString().padStart(2, '0')}
+                          </span>
+                          <span className="text-xs text-gray-400 uppercase">Dias</span>
+                        </div>
+                        <span className="text-2xl font-bold text-gray-600 self-center">:</span>
+                        <div className="text-center">
+                          <span className="block text-4xl font-bold text-white font-mono">
+                            {hoursRemaining.toString().padStart(2, '0')}
+                          </span>
+                          <span className="text-xs text-gray-400 uppercase">Horas</span>
+                        </div>
+                      </div>
+                    )
+                  })()}
 
                   <Link
                     href={`/race/${nextRace.id}`}
@@ -129,12 +150,17 @@ export default async function Index() {
                   key={race.id}
                   className={`glass-panel p-5 rounded-2xl transition hover:border-white/20 group relative ${race.status === 'open' ? '' : 'opacity-60 grayscale'}`}
                 >
-                  <div className="absolute top-4 right-4">
+                  <div className="absolute top-4 right-4 flex flex-col gap-1 items-end">
                     {race.status === 'open' ? (
                       <span className="w-2 h-2 rounded-full bg-green-500 block shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
                     ) : (
                       <span className="text-[10px] font-bold uppercase text-gray-500 border border-gray-700 px-2 py-0.5 rounded">
                         {race.status}
+                      </span>
+                    )}
+                    {race.is_test_race && (
+                      <span className="text-[9px] font-bold uppercase text-yellow-400 bg-yellow-500/10 border border-yellow-500/30 px-1.5 py-0.5 rounded">
+                        Teste
                       </span>
                     )}
                   </div>
