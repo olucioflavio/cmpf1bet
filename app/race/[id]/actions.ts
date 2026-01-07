@@ -58,9 +58,9 @@ export async function placeBet(raceId: number, formData: FormData) {
 
     if (error) {
         console.error('Error placing bet:', error)
-        return { error: 'Failed to place bet' }
+        // return { error: 'Failed to place bet' }
     }
 
     revalidatePath(`/race/${raceId}`)
-    return { success: true }
+    // return { success: true }
 }
