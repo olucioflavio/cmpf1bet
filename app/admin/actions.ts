@@ -80,7 +80,7 @@ export async function updateRaceStatus(raceId: number, status: string) {
 
     if (error) {
         console.error('Error updating race status:', error)
-        return { error: error.message }
+        // return { error: error.message } // Cannot return object to form action in strict mode
     }
 
     revalidatePath('/admin')
@@ -95,7 +95,7 @@ export async function setVariableDriver(raceId: number, driverId: number) {
 
     if (error) {
         console.error('Error setting variable driver:', error)
-        return { error: error.message }
+        // return { error: error.message }
     }
 
     revalidatePath('/admin')
