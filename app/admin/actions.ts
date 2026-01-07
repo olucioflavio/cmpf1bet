@@ -9,7 +9,8 @@ export async function createUser(formData: FormData) {
     const password = formData.get('password') as string
 
     if (!username || !password) {
-        return { error: 'Username and password are required' }
+        // return { error: 'Username and password are required' }
+        return
     }
 
     const email = `${username}@cmpf1bet.local`
@@ -24,11 +25,13 @@ export async function createUser(formData: FormData) {
 
     if (authError) {
         console.error('Error creating auth user:', authError)
-        return { error: authError.message }
+        // return { error: authError.message }
+        return
     }
 
     if (!authData.user) {
-        return { error: 'User creation failed' }
+        // return { error: 'User creation failed' }
+        return
     }
 
     // 2. Create profile (sometimes triggers handle this, but explicit is safer if trigger missing)
@@ -46,11 +49,11 @@ export async function createUser(formData: FormData) {
         console.error('Error creating profile:', profileError)
         // Cleanup auth user if profile fails? 
         // For now, let's just report error. Auth user exists though.
-        return { error: 'User created but profile failed: ' + profileError.message }
+        // return { error: 'User created but profile failed: ' + profileError.message }
     }
 
     revalidatePath('/admin/users')
-    return { success: `User ${username} created successfully` }
+    // return { success: `User ${username} created successfully` }
 }
 
 export async function deleteUser(userId: string) {
@@ -62,11 +65,11 @@ export async function deleteUser(userId: string) {
 
     if (error) {
         console.error('Error deleting user:', error)
-        return { error: error.message }
+        // return { error: error.message }
     }
 
     revalidatePath('/admin/users')
-    return { success: 'User deleted' }
+    // return { success: 'User deleted' }
 }
 
 // --- Race Management Actions (Restored) ---
