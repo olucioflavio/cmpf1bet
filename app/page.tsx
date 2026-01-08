@@ -14,6 +14,15 @@ export default async function Index() {
     .select('*')
     .order('date', { ascending: true })
 
+  // Fetch user bets if logged in
+  let userBets: Array<{ race_id: number }> = []
+  if (user) {
+    const { data: betsData } = await supabase
+      .from('bets')
+      .select('race_id')
+      .eq('user_id', user.id)
+    userBets = betsData || []
+  }
 
   // Separate test races from official races
   const officialRaces = races?.filter(r => !r.is_test_race) || []
@@ -106,7 +115,7 @@ export default async function Index() {
                     className="group/btn relative px-8 py-3 bg-f1-red text-white font-bold rounded-xl overflow-hidden transition-transform hover:scale-105 active:scale-95"
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      Apostar Agora <ChevronRightIcon className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      {userBets.some(b => b.race_id === nextRace.id) ? 'Editar Aposta' : 'Apostar Agora'} <ChevronRightIcon className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                   </Link>
@@ -184,7 +193,7 @@ export default async function Index() {
                         href={`/race/${race.id}`}
                         className="text-xs font-bold text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
                       >
-                        Apostar
+                        {userBets.some(b => b.race_id === race.id) ? 'Editar' : 'Apostar'}
                       </Link>
                     )}
                   </div>

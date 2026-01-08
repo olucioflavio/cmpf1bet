@@ -2,8 +2,12 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { submitRaceBet } from './actions'
 
-export default async function RacePage(props: { params: Promise<{ id: string }> }) {
+export default async function RacePage(props: {
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ error?: string; success?: string }>
+}) {
     const params = await props.params
+    const searchParams = await props.searchParams
     const supabase = await createClient()
     const raceId = parseInt(params.id)
 
@@ -43,6 +47,24 @@ export default async function RacePage(props: { params: Promise<{ id: string }> 
                     <p className="text-yellow-400 text-sm font-semibold flex items-center gap-2">
                         <span className="text-lg">⚠️</span>
                         <span>Esta é uma <strong>corrida de teste</strong> e não contará pontos para a temporada oficial.</span>
+                    </p>
+                </div>
+            )}
+
+            {searchParams.success && (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                    <p className="text-green-400 text-sm font-semibold flex items-center gap-2">
+                        <span className="text-lg">✅</span>
+                        <span><strong>Aposta realizada com sucesso!</strong></span>
+                    </p>
+                </div>
+            )}
+
+            {searchParams.error && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                    <p className="text-red-400 text-sm font-semibold flex items-center gap-2">
+                        <span className="text-lg">❌</span>
+                        <span>{decodeURIComponent(searchParams.error)}</span>
                     </p>
                 </div>
             )}

@@ -2,7 +2,10 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { updateRaceStatus, setVariableDriver } from './actions'
 
-export default async function AdminPage() {
+export default async function AdminPage(props: {
+    searchParams: Promise<{ success?: string }>
+}) {
+    const searchParams = await props.searchParams
     const supabase = await createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
@@ -25,6 +28,12 @@ export default async function AdminPage() {
         <div className="flex-1 w-full max-w-6xl p-4 flex flex-col gap-6">
             <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
 
+            {searchParams.success === 'results_saved' && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                    Resultados salvos com sucesso!
+                </div>
+            )}
+
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
@@ -33,6 +42,7 @@ export default async function AdminPage() {
                             <th className="p-3">Date</th>
                             <th className="p-3">Status</th>
                             <th className="p-3">Variable Driver</th>
+                            <th className="p-3">Resultados</th>
                             <th className="p-3">Actions</th>
                         </tr>
                     </thead>
@@ -48,7 +58,7 @@ export default async function AdminPage() {
                                         {race.status}
                                     </span>
                                 </td>
-                                <td className="p-3 text-sm">
+                                <td className="p-3">
                                     <form action={async (formData) => {
                                         'use server'
                                         await setVariableDriver(race.id, parseInt(formData.get('driverId') as string))
@@ -65,6 +75,14 @@ export default async function AdminPage() {
                                         </select>
                                         <button className="ml-2 text-xs bg-blue-600 px-2 py-1 rounded">Set</button>
                                     </form>
+                                </td>
+                                <td className="p-3">
+                                    <a
+                                        href={`/admin/results/${race.id}`}
+                                        className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-xs inline-block"
+                                    >
+                                        Resultados
+                                    </a>
                                 </td>
                                 <td className="p-3 flex gap-2">
                                     <form action={updateRaceStatus.bind(null, race.id, 'open')}>

@@ -22,6 +22,14 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
     const bortoleto = formData.get('bortoleto')
     const variable = formData.get('variable')
 
+    // Validate no duplicate drivers in Top 5 and Pole
+    const driverIds = [pole, p1, p2, p3, p4, p5].filter(Boolean)
+    const uniqueDrivers = new Set(driverIds)
+
+    if (driverIds.length !== uniqueDrivers.size) {
+        redirect(`/race/${raceId}?error=${encodeURIComponent('Você não pode escolher o mesmo piloto em posições diferentes!')}`)
+    }
+
     const betData = {
         user_id: user.id,
         race_id: raceId,
@@ -59,7 +67,9 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
 
     if (error) {
         console.error('Error placing bet:', error)
+        redirect(`/race/${raceId}?error=${encodeURIComponent('Erro ao salvar aposta. Tente novamente.')}`)
     }
 
     revalidatePath(`/race/${raceId}`)
+    redirect(`/race/${raceId}?success=true`)
 }
