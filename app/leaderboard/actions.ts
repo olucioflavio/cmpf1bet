@@ -10,6 +10,7 @@ export type LeaderboardUser = {
     email: string | null
     points: number | null
     calculatedPoints: number
+    racesCompleted: number
 }
 
 export async function getLeaderboard(): Promise<LeaderboardUser[]> {
@@ -57,17 +58,20 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
     const leaderboard = profiles.map(profile => {
         const userBets = bets.filter(b => b.user_id === profile.id)
         let totalScore = 0
+        let racesCompleted = 0
 
         userBets.forEach(bet => {
             const raceResult = results.find(r => r.race_id === bet.race_id)
             if (raceResult) {
                 totalScore += calculateBetScore(bet, raceResult)
+                racesCompleted++
             }
         })
 
         return {
             ...profile,
-            calculatedPoints: totalScore
+            calculatedPoints: totalScore,
+            racesCompleted
         }
     })
 

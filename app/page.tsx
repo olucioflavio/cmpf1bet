@@ -36,6 +36,20 @@ export default async function Index() {
   // Separate test races from official races
   const officialRaces = races?.filter(r => !r.is_test_race) || []
 
+  // Fetch leaderboard for stats
+  const leaderboardData = await getLeaderboard()
+
+  let userStats = null
+  let userRank: number | string = '-'
+
+  if (user) {
+    const index = leaderboardData.findIndex(u => u.id === user.id)
+    if (index !== -1) {
+      userStats = leaderboardData[index]
+      userRank = index + 1
+    }
+  }
+
   // Find next race (first future race)
   const now = new Date()
   const nextRace = races?.find(r => new Date(r.date) > now && r.status === 'open') || races?.[0]
@@ -138,12 +152,18 @@ export default async function Index() {
                 <h3 className="text-lg font-bold text-white mb-4">Estatísticas Rápidas</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-sm text-gray-400">Suas apostas</span>
-                    <span className="font-mono font-bold text-white">0</span>
+                    <span className="text-sm text-gray-400">Média / Corrida</span>
+                    <span className="font-mono font-bold text-white">
+                      {userStats?.racesCompleted ? (userStats.calculatedPoints / userStats.racesCompleted).toFixed(1) : '0.0'}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-sm text-gray-400">Ganhos na Temporada</span>
-                    <span className="font-mono font-bold text-green-400">$0.00</span>
+                    <span className="text-sm text-gray-400">Pontuação Total</span>
+                    <span className="font-mono font-bold text-green-400">{userStats?.calculatedPoints || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                    <span className="text-sm text-gray-400">Posição</span>
+                    <span className="font-mono font-bold text-yellow-500">#{userRank}</span>
                   </div>
                 </div>
               </div>
@@ -227,7 +247,7 @@ export default async function Index() {
               </div>
 
               <div className="space-y-1">
-                {(await getLeaderboard()).slice(0, 5).map((user, index) => (
+                {leaderboardData.slice(0, 5).map((user, index) => (
                   <div key={user.id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0 hover:bg-white/5 px-2 rounded-lg transition-colors">
                     <div className="flex items-center gap-3">
                       <span className={`text-sm font-black font-mono w-4 ${index === 0 ? 'text-yellow-500' :
@@ -245,7 +265,7 @@ export default async function Index() {
                     </span>
                   </div>
                 ))}
-                {(await getLeaderboard()).length === 0 && (
+                {leaderboardData.length === 0 && (
                   <div className="text-center py-4 text-xs text-gray-500">
                     Nenhum dado ainda.
                   </div>

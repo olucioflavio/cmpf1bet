@@ -34,6 +34,8 @@ export default function BetForm({ raceId, drivers, userBet, isClosed, variableDr
     const defaultBortoletoPos = userBet?.bortoleto_pos?.toString() || ''
     const [bortoletoPos, setBortoletoPos] = useState(defaultBortoletoPos)
 
+    const [error, setError] = useState<string | null>(null)
+
     // Find Bortoleto's ID
     const bortoletoDriver = drivers.find(d => d.name.includes("Bortoleto") || d.name === "Gabriel Bortoleto")
     const bortoletoId = bortoletoDriver?.id.toString()
@@ -47,8 +49,45 @@ export default function BetForm({ raceId, drivers, userBet, isClosed, variableDr
         }
     }
 
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        setError(null)
+        const formData = new FormData(e.currentTarget)
+        const p1 = formData.get('p1') as string
+        const p2 = formData.get('p2') as string
+        const p3 = formData.get('p3') as string
+        const p4 = formData.get('p4') as string
+        const p5 = formData.get('p5') as string
+        const bortoletoInput = formData.get('bortoleto') as string
+
+        if (!bortoletoId) return // Should not happen given hardcoded logic but safe to ignore
+
+        let selectedPosInTop5: string | null = null
+        if (p1 === bortoletoId) selectedPosInTop5 = '1'
+        if (p2 === bortoletoId) selectedPosInTop5 = '2'
+        if (p3 === bortoletoId) selectedPosInTop5 = '3'
+        if (p4 === bortoletoId) selectedPosInTop5 = '4'
+        if (p5 === bortoletoId) selectedPosInTop5 = '5'
+
+        // 1. Forward Check: If selected in Top 5, Input must match
+        if (selectedPosInTop5 && bortoletoInput !== selectedPosInTop5) {
+            e.preventDefault()
+            setError(`Gabriel Bortoleto foi colocado na posição P${selectedPosInTop5} no Top 5, mas você indicou a posição ${bortoletoInput} na caixa específica. Por favor, ajuste para que sejam iguais.`)
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+            return
+        }
+
+        // 2. Reverse Check: If Input is 1-5, Top 5 must match
+        // Only run this if he wasn't found in Top 5 (otherwise Check 1 would have caught the mismatch or confirmed the match)
+        if (!selectedPosInTop5 && ['1', '2', '3', '4', '5'].includes(bortoletoInput)) {
+            e.preventDefault()
+            setError(`Você indicou que Gabriel Bortoleto chegará na posição ${bortoletoInput}, mas a P${bortoletoInput} no Top 5 está selecionada para outro piloto (ou vazia). Selecione Gabriel Bortoleto na P${bortoletoInput} acima.`)
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+            return
+        }
+    }
+
     return (
-        <form action={submitRaceBet} className="flex flex-col gap-6">
+        <form action={submitRaceBet} onSubmit={handleSubmit} className="flex flex-col gap-6">
             <input type="hidden" name="raceId" value={raceId} />
 
             {/* Pole Position */}
@@ -131,6 +170,12 @@ export default function BetForm({ raceId, drivers, userBet, isClosed, variableDr
                     </div>
                 )}
             </div>
+
+            {error && (
+                <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-200 text-sm animate-pulse">
+                    ⚠️ {error}
+                </div>
+            )}
 
             {!isClosed && (
                 <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg mt-4 transition">
