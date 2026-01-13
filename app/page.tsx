@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import { CalendarIcon, MapPinIcon, ChevronRightIcon, ClockIcon } from 'lucide-react'
+import { CalendarIcon, MapPinIcon, ChevronRightIcon, ClockIcon, TrophyIcon } from 'lucide-react'
 import NewsSection from '@/components/NewsSection'
+import { getLeaderboard } from './leaderboard/actions'
 
 export default async function Index() {
   const supabase = await createClient()
@@ -16,12 +17,20 @@ export default async function Index() {
 
   // Fetch user bets if logged in
   let userBets: Array<{ race_id: number }> = []
+  let profile = null
   if (user) {
     const { data: betsData } = await supabase
       .from('bets')
       .select('race_id')
       .eq('user_id', user.id)
     userBets = betsData || []
+
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('username, full_name')
+      .eq('id', user.id)
+      .single()
+    profile = profileData
   }
 
   // Separate test races from official races
@@ -42,7 +51,7 @@ export default async function Index() {
         <header className="mb-10 flex flex-col md:flex-row justify-between items-end gap-4">
           <div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-2">
-              Bem-vindo de volta, <span className="text-f1-red">{user?.email?.split('@')[0] || 'Pitaqueiro'}</span>
+              Bem-vindo de volta, <span className="text-f1-red">{profile?.username || user?.email?.split('@')[0] || 'Pitaqueiro'}</span>
             </h1>
             <p className="text-gray-400">Pronto para apostar na temporada 2026?</p>
           </div>
@@ -202,8 +211,48 @@ export default async function Index() {
             </div>
           </div>
 
-          {/* Sidebar - News */}
-          <div className="lg:col-span-1">
+          {/* Sidebar - News & Leaderboard */}
+          <div className="lg:col-span-1 space-y-8">
+
+            {/* Mini Leaderboard Widget */}
+            <div className="glass-panel p-6 rounded-3xl">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <TrophyIcon className="w-5 h-5 text-yellow-500" />
+                  Classificação
+                </h3>
+                <Link href="/leaderboard" className="text-xs text-f1-red font-bold hover:underline">
+                  Ver ranking
+                </Link>
+              </div>
+
+              <div className="space-y-1">
+                {(await getLeaderboard()).slice(0, 5).map((user, index) => (
+                  <div key={user.id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0 hover:bg-white/5 px-2 rounded-lg transition-colors">
+                    <div className="flex items-center gap-3">
+                      <span className={`text-sm font-black font-mono w-4 ${index === 0 ? 'text-yellow-500' :
+                        index === 1 ? 'text-gray-300' :
+                          index === 2 ? 'text-amber-600' : 'text-gray-500'
+                        }`}>
+                        {index + 1}
+                      </span>
+                      <span className="text-sm font-medium text-gray-200 truncate max-w-[120px]">
+                        {user.username || user.email?.split('@')[0]}
+                      </span>
+                    </div>
+                    <span className="text-sm font-bold text-white font-mono">
+                      {user.calculatedPoints}
+                    </span>
+                  </div>
+                ))}
+                {(await getLeaderboard()).length === 0 && (
+                  <div className="text-center py-4 text-xs text-gray-500">
+                    Nenhum dado ainda.
+                  </div>
+                )}
+              </div>
+            </div>
+
             <NewsSection />
           </div>
         </div>

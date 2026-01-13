@@ -57,13 +57,80 @@ export async function createUser(formData: FormData): Promise<void> {
 export async function deleteUser(userId: string): Promise<void> {
     const supabase = createAdminClient()
 
-    const { error } = await supabase.auth.admin.deleteUser(userId)
+    // 1. Delete all bets for this user
+    const { error: betsError } = await supabase
+        .from('bets')
+        .delete()
+        .eq('user_id', userId)
 
-    if (error) {
-        console.error('Error deleting user:', error)
+    if (betsError) {
+        console.error('Error deleting user bets:', betsError)
+        redirect('/admin/users?error=' + encodeURIComponent('Erro ao deletar apostas do usuário.'))
+    }
+
+    // 2. Delete the profile
+    const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId)
+
+    if (profileError) {
+        console.error('Error deleting user profile:', profileError)
+        redirect('/admin/users?error=' + encodeURIComponent('Erro ao deletar perfil do usuário.'))
+    }
+
+    // 3. Delete from Auth
+    const { error: authError } = await supabase.auth.admin.deleteUser(userId)
+
+    if (authError) {
+        console.error('Error deleting auth user:', authError)
+        redirect('/admin/users?error=' + encodeURIComponent('Erro ao deletar usuário do sistema.'))
     }
 
     revalidatePath('/admin/users')
+    redirect('/admin/users?success=deleted')
+}
+
+export async function updateUser(userId: string, formData: FormData): Promise<void> {
+    const supabase = createAdminClient()
+    const username = formData.get('username') as string
+    const fullName = formData.get('fullName') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const role = formData.get('role') as string
+    const points = parseInt(formData.get('points') as string)
+
+    // 1. Update Auth User (Email & Password)
+    const authUpdates: any = { email }
+    if (password && password.trim() !== '') {
+        authUpdates.password = password
+    }
+
+    const { error: authError } = await supabase.auth.admin.updateUserById(userId, authUpdates)
+
+    if (authError) {
+        redirect(`/admin/users/${userId}?error=${encodeURIComponent('Erro auth: ' + authError.message)}`)
+    }
+
+    // 2. Update Profile
+    const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+            username,
+            full_name: fullName,
+            email,
+            role,
+            points
+        })
+        .eq('id', userId)
+
+    if (profileError) {
+        redirect(`/admin/users/${userId}?error=${encodeURIComponent('Erro profile: ' + profileError.message)}`)
+    }
+
+    revalidatePath('/admin/users')
+    revalidatePath(`/admin/users/${userId}`)
+    redirect('/admin/users?success=updated')
 }
 
 // --- Race Management Actions ---

@@ -40,7 +40,7 @@ export default async function AdminLayout({
                     </nav>
                 </div>
             </header>
-            <main className="flex-1 p-8 bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+            <main className="flex-1 p-8 text-white relative z-10">
                 {children}
             </main>
         </div>
