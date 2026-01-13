@@ -39,6 +39,7 @@ export default function BetForm({ raceId, drivers, userBet, isClosed, variableDr
     // Find Bortoleto's ID
     const bortoletoDriver = drivers.find(d => d.name.includes("Bortoleto") || d.name === "Gabriel Bortoleto")
     const bortoletoId = bortoletoDriver?.id.toString()
+    const variableDriverId = variableDriver?.id.toString()
 
     // Function to check if Bortoleto is selected in Top 5 and update prop
     const handleDriverSelect = (e: React.ChangeEvent<HTMLSelectElement>, pos: number) => {
@@ -83,6 +84,34 @@ export default function BetForm({ raceId, drivers, userBet, isClosed, variableDr
             setError(`Você indicou que Gabriel Bortoleto chegará na posição ${bortoletoInput}, mas a P${bortoletoInput} no Top 5 está selecionada para outro piloto (ou vazia). Selecione Gabriel Bortoleto na P${bortoletoInput} acima.`)
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
             return
+        }
+
+        // --- Variable Driver Validation ---
+        if (variableDriverId && variableDriver) {
+            const variableInput = formData.get('variable') as string
+            let selectedVarPosInTop5: string | null = null
+
+            if (p1 === variableDriverId) selectedVarPosInTop5 = '1'
+            if (p2 === variableDriverId) selectedVarPosInTop5 = '2'
+            if (p3 === variableDriverId) selectedVarPosInTop5 = '3'
+            if (p4 === variableDriverId) selectedVarPosInTop5 = '4'
+            if (p5 === variableDriverId) selectedVarPosInTop5 = '5'
+
+            // 1. Forward Check
+            if (selectedVarPosInTop5 && variableInput !== selectedVarPosInTop5) {
+                e.preventDefault()
+                setError(`O piloto variável ${variableDriver.name} foi colocado na posição P${selectedVarPosInTop5} no Top 5, mas você indicou a posição ${variableInput} na caixa específica. Por favor, ajuste para que sejam iguais.`)
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                return
+            }
+
+            // 2. Reverse Check
+            if (!selectedVarPosInTop5 && ['1', '2', '3', '4', '5'].includes(variableInput)) {
+                e.preventDefault()
+                setError(`Você indicou que o piloto variável ${variableDriver.name} chegará na posição ${variableInput}, mas a P${variableInput} no Top 5 está selecionada para outro piloto (ou vazia). Selecione ${variableDriver.name} na P${variableInput} acima.`)
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                return
+            }
         }
     }
 
