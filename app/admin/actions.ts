@@ -162,3 +162,21 @@ export async function setVariableDriver(raceId: number, driverId: number): Promi
 
     revalidatePath('/admin')
 }
+
+/**
+ * Reseta o status da corrida para 'scheduled', permitindo que o sistema
+ * calcule automaticamente o status baseado na data
+ */
+export async function resetRaceToAutoStatus(raceId: number): Promise<void> {
+    const supabase = createAdminClient()
+    const { error } = await supabase
+        .from('races')
+        .update({ status: 'scheduled' })
+        .eq('id', raceId)
+
+    if (error) {
+        console.error('Error resetting race to auto status:', error)
+    }
+
+    revalidatePath('/admin')
+}

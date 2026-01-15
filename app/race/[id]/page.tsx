@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { submitRaceBet } from './actions'
 import BetForm from './BetForm'
+import { calculateRaceStatus, getRaceBettingInfo } from '@/utils/raceStatus'
 
 export default async function RacePage(props: {
     params: Promise<{ id: string }>,
@@ -30,7 +31,10 @@ export default async function RacePage(props: {
 
     if (!race) return <div>Corrida não encontrada</div>
 
-    const isClosed = race.status !== 'open'
+    // Calcular status automático baseado na data
+    const actualStatus = calculateRaceStatus(race.date, race.status)
+    const bettingInfo = getRaceBettingInfo(race.date)
+    const isClosed = actualStatus !== 'open'
     const variableDriver = race.variable_driver
 
     return (
@@ -38,8 +42,51 @@ export default async function RacePage(props: {
             <div className="flex flex-col gap-2 border-b border-gray-800 pb-4">
                 <h1 className="text-3xl font-bold">{race.name}</h1>
                 <p className="text-gray-400">{new Date(race.date).toLocaleString()} @ {race.track}</p>
-                <div className="mt-2">
-                    Status: <span className={`uppercase font-bold ${race.status === 'open' ? 'text-green-500' : 'text-red-500'}`}>{race.status}</span>
+                <div className="mt-2 flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                        <span className="text-gray-400">Status:</span>
+                        <span className={`uppercase font-bold px-3 py-1 rounded-full text-sm ${actualStatus === 'open' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                actualStatus === 'scheduled' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                    actualStatus === 'closed' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                                        'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                            }`}>
+                            {actualStatus === 'open' ? '🟢 Apostas Abertas' :
+                                actualStatus === 'scheduled' ? '🔵 Agendada' :
+                                    actualStatus === 'closed' ? '🔴 Apostas Encerradas' :
+                                        '🏁 Finalizada'}
+                        </span>
+                    </div>
+
+                    {/* Informações de abertura/fechamento */}
+                    {actualStatus === 'scheduled' && (
+                        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-sm">
+                            <p className="text-blue-400">
+                                <strong>📅 Apostas abrem em:</strong> {bettingInfo.openingFormatted}
+                            </p>
+                            <p className="text-blue-300 mt-1">
+                                <strong>⏰ Apostas fecham em:</strong> {bettingInfo.closingFormatted}
+                            </p>
+                        </div>
+                    )}
+
+                    {actualStatus === 'open' && (
+                        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 text-sm">
+                            <p className="text-green-400">
+                                <strong>⏰ Apostas encerram em:</strong> {bettingInfo.closingFormatted}
+                            </p>
+                            <p className="text-green-300 mt-1 text-xs">
+                                Faça sua aposta antes da sexta-feira às 23:59!
+                            </p>
+                        </div>
+                    )}
+
+                    {actualStatus === 'closed' && (
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm">
+                            <p className="text-red-400">
+                                <strong>🔒 Apostas encerradas em:</strong> {bettingInfo.closingFormatted}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 

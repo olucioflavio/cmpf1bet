@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { CalendarIcon, MapPinIcon, ChevronRightIcon, ClockIcon, TrophyIcon } from 'lucide-react'
 import NewsSection from '@/components/NewsSection'
 import { getLeaderboard } from './leaderboard/actions'
+import { calculateRaceStatus } from '@/utils/raceStatus'
 
 export default async function Index() {
   const supabase = await createClient()
@@ -50,9 +51,16 @@ export default async function Index() {
     }
   }
 
-  // Find next race (first future race)
+  // Find next race (first future race with open status)
   const now = new Date()
-  const nextRace = races?.find(r => new Date(r.date) > now && r.status === 'open') || races?.[0]
+
+  // Calcular status automático para cada corrida e encontrar a próxima aberta
+  const racesWithStatus = races?.map(r => ({
+    ...r,
+    calculatedStatus: calculateRaceStatus(r.date, r.status)
+  }))
+
+  const nextRace = racesWithStatus?.find(r => new Date(r.date) > now && r.calculatedStatus === 'open') || racesWithStatus?.[0]
 
   // Format date for the next race countdown style
   const nextRaceDate = nextRace ? new Date(nextRace.date) : null
@@ -183,51 +191,54 @@ export default async function Index() {
             </h3>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              {races?.filter(r => r.id !== nextRace?.id).map((race) => (
-                <div
-                  key={race.id}
-                  className={`glass-panel p-5 rounded-2xl transition hover:border-white/20 group relative ${race.status === 'open' ? '' : 'opacity-60 grayscale'}`}
-                >
-                  <div className="absolute top-4 right-4 flex flex-col gap-1 items-end">
-                    {race.status === 'open' ? (
-                      <span className="w-2 h-2 rounded-full bg-green-500 block shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                    ) : (
-                      <span className="text-[10px] font-bold uppercase text-gray-500 border border-gray-700 px-2 py-0.5 rounded">
-                        {race.status}
-                      </span>
-                    )}
-                    {race.is_test_race && (
-                      <span className="text-[9px] font-bold uppercase text-yellow-400 bg-yellow-500/10 border border-yellow-500/30 px-1.5 py-0.5 rounded">
-                        Teste
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-xs text-gray-500 font-mono mb-1">Rodada {race.id}</p>
-                    <h4 className="text-lg font-bold text-white truncate group-hover:text-f1-red transition-colors">{race.name}</h4>
-                    <p className="text-sm text-gray-400 flex items-center gap-1 mt-1">
-                      <MapPinIcon className="w-3 h-3" /> {race.track}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between mt-4 md:mt-6">
-                    <div className="flex items-center gap-2 text-xs text-gray-400 bg-white/5 px-2 py-1 rounded">
-                      <CalendarIcon className="w-3 h-3" />
-                      {new Date(race.date).toLocaleDateString()}
+              {racesWithStatus?.filter(r => r.id !== nextRace?.id).map((race) => {
+                const raceStatus = calculateRaceStatus(race.date, race.status)
+                return (
+                  <div
+                    key={race.id}
+                    className={`glass-panel p-5 rounded-2xl transition hover:border-white/20 group relative ${raceStatus === 'open' ? '' : 'opacity-60 grayscale'}`}
+                  >
+                    <div className="absolute top-4 right-4 flex flex-col gap-1 items-end">
+                      {raceStatus === 'open' ? (
+                        <span className="w-2 h-2 rounded-full bg-green-500 block shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase text-gray-500 border border-gray-700 px-2 py-0.5 rounded">
+                          {raceStatus}
+                        </span>
+                      )}
+                      {race.is_test_race && (
+                        <span className="text-[9px] font-bold uppercase text-yellow-400 bg-yellow-500/10 border border-yellow-500/30 px-1.5 py-0.5 rounded">
+                          Teste
+                        </span>
+                      )}
                     </div>
 
-                    {race.status === 'open' && (
-                      <Link
-                        href={`/race/${race.id}`}
-                        className="text-xs font-bold text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
-                      >
-                        {userBets.some(b => b.race_id === race.id) ? 'Editar' : 'Apostar'}
-                      </Link>
-                    )}
+                    <div className="mb-4">
+                      <p className="text-xs text-gray-500 font-mono mb-1">Rodada {race.id}</p>
+                      <h4 className="text-lg font-bold text-white truncate group-hover:text-f1-red transition-colors">{race.name}</h4>
+                      <p className="text-sm text-gray-400 flex items-center gap-1 mt-1">
+                        <MapPinIcon className="w-3 h-3" /> {race.track}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-4 md:mt-6">
+                      <div className="flex items-center gap-2 text-xs text-gray-400 bg-white/5 px-2 py-1 rounded">
+                        <CalendarIcon className="w-3 h-3" />
+                        {new Date(race.date).toLocaleDateString()}
+                      </div>
+
+                      {raceStatus === 'open' && (
+                        <Link
+                          href={`/race/${race.id}`}
+                          className="text-xs font-bold text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
+                        >
+                          {userBets.some(b => b.race_id === race.id) ? 'Editar' : 'Apostar'}
+                        </Link>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 

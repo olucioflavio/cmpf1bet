@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { sendBetConfirmation } from '@/utils/email'
+import { calculateRaceStatus } from '@/utils/raceStatus'
 
 export async function submitRaceBet(formData: FormData): Promise<void> {
     const supabase = await createClient()
@@ -14,6 +15,28 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
     }
 
     const raceId = parseInt(formData.get('raceId') as string)
+
+    // Verificar se a corrida existe e calcular status automático
+    const { data: raceStatus } = await supabase
+        .from('races')
+        .select('date, status')
+        .eq('id', raceId)
+        .single()
+
+    if (!raceStatus) {
+        redirect(`/race/${raceId}?error=${encodeURIComponent('Corrida não encontrada!')}`)
+    }
+
+    // Calcular status automático
+    const actualStatus = calculateRaceStatus(raceStatus.date, raceStatus.status)
+
+    // Validar se apostas estão abertas
+    if (actualStatus !== 'open') {
+        const message = actualStatus === 'scheduled'
+            ? 'As apostas ainda não foram abertas para esta corrida!'
+            : 'As apostas já foram encerradas para esta corrida!'
+        redirect(`/race/${raceId}?error=${encodeURIComponent(message)}`)
+    }
     const pole = formData.get('pole')
     const p1 = formData.get('p1')
     const p2 = formData.get('p2')
@@ -89,8 +112,8 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
     }
 
     // --- Send Confirmation Email ---
-    // Fetch Race Details
-    const { data: race } = await supabase.from('races').select('name, track').eq('id', raceId).single()
+    // Fetch Race Details (já temos date e status, só precisamos de name e track)
+    const { data: raceDetails } = await supabase.from('races').select('name, track').eq('id', raceId).single()
 
     // Fetch Drivers to map IDs to Names
     const { data: allDrivers } = await supabase.from('drivers').select('id, name, code')
@@ -100,13 +123,13 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
         return d ? `${d.name} (${d.code})` : 'Desconhecido'
     }
 
-    if (user.email && race) {
+    if (user.email && raceDetails) {
         console.log('Preparing to send bet confirmation email...')
         await sendBetConfirmation({
             email: user.email,
             userName: user.user_metadata?.username || user.email.split('@')[0],
-            raceName: race.name,
-            track: race.track,
+            raceName: raceDetails.name,
+            track: raceDetails.track,
             bets: {
                 pole: getDriverName(pole),
                 p1: getDriverName(p1),
