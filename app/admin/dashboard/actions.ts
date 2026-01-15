@@ -7,7 +7,7 @@ export async function getAllBetsDetails() {
 
     // Fetch everything we need
     const { data: races } = await supabase.from('races').select('*').order('date', { ascending: false })
-    const { data: profiles } = await supabase.from('profiles').select('*')
+    const { data: profiles } = await supabase.from('profiles').select('*').neq('role', 'admin')
     const { data: bets } = await supabase.from('bets').select('*')
     const { data: results } = await supabase.from('race_results').select('*')
     const { data: drivers } = await supabase.from('drivers').select('*')

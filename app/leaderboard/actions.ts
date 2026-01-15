@@ -16,10 +16,11 @@ export type LeaderboardUser = {
 export async function getLeaderboard(): Promise<LeaderboardUser[]> {
     const supabase = await createClient()
 
-    // 1. Fetch all profiles
+    // 1. Fetch all profiles (excluding admin users)
     const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, username, full_name, email, points')
+        .neq('role', 'admin')
         .order('points', { ascending: false })
 
     if (profilesError) {
