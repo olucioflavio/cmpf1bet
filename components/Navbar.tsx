@@ -38,6 +38,9 @@ export default async function Navbar() {
                     <Link href="/leaderboard" className="text-gray-300 hover:text-white transition-colors">
                         Classificação
                     </Link>
+                    <Link href="/news" className="text-gray-300 hover:text-white transition-colors">
+                        Notícias F1
+                    </Link>
                     {user ? (
                         <div className="flex gap-4 items-center">
                             <Link href="/my-performance" className="text-gray-300 hover:text-white transition-colors">

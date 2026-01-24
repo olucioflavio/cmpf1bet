@@ -1,46 +1,17 @@
-import { XMLParser } from 'fast-xml-parser'
+import Link from 'next/link'
 import { ExternalLinkIcon } from 'lucide-react'
-
-async function getNews() {
-    try {
-        const res = await fetch('https://news.google.com/rss/search?q=Formula+1+2026&hl=pt-BR&gl=BR&ceid=BR:pt-419', { next: { revalidate: 3600 } })
-        if (!res.ok) throw new Error('Failed to fetch')
-        const text = await res.text()
-        const parser = new XMLParser()
-        const feed = parser.parse(text)
-        const items = feed?.rss?.channel?.item || []
-
-        // Ensure items is an array (XMLParser might return single object if only 1 item)
-        const newsItems = Array.isArray(items) ? items : [items]
-
-        return newsItems.slice(0, 7).map((item: any) => ({
-            title: item.title,
-            link: item.link,
-            date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '',
-            source: item.source || 'F1 News'
-        }))
-    } catch (e) {
-        console.error('Failed to fetch news', e)
-        // Fallback mock data if fetch fails
-        return [
-            {
-                title: "Falha ao carregar notícias. Tente novamente mais tarde.",
-                link: "#",
-                date: new Date().toLocaleDateString('pt-BR'),
-                source: "Sistema"
-            }
-        ]
-    }
-}
+import { getNews } from '@/utils/news'
 
 export default async function NewsSection() {
-    const news = await getNews()
+    const news = await getNews(7)
 
     return (
         <div className="glass-panel p-6 rounded-3xl h-fit">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold tracking-tight text-white">Central de Notícias F1</h2>
-                <span className="text-xs text-f1-red font-medium cursor-pointer hover:underline">Ver tudo</span>
+                <Link href="/news">
+                    <span className="text-xs text-f1-red font-medium cursor-pointer hover:underline">Ver tudo</span>
+                </Link>
             </div>
 
             <div className="space-y-6">
