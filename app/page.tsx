@@ -60,7 +60,10 @@ export default async function Index() {
     calculatedStatus: calculateRaceStatus(r.date, r.status)
   }))
 
-  const nextRace = racesWithStatus?.find(r => new Date(r.date) > now && r.calculatedStatus === 'open') || racesWithStatus?.[0]
+  const nextRace =
+    racesWithStatus?.find(r => r.calculatedStatus === 'open') ||
+    racesWithStatus?.find(r => new Date(r.date) > now) ||
+    racesWithStatus?.[0]
 
   // Format date for the next race countdown style
   const nextRaceDate = nextRace ? new Date(nextRace.date) : null
@@ -214,7 +217,9 @@ export default async function Index() {
                     </div>
 
                     <div className="mb-4">
-                      <p className="text-xs text-gray-500 font-mono mb-1">Rodada {race.id}</p>
+                      <p className="text-xs text-gray-500 font-mono mb-1">
+                        {race.is_test_race ? 'Teste' : `Rodada ${officialRaces.findIndex(r => r.id === race.id) + 1}`}
+                      </p>
                       <h4 className="text-lg font-bold text-white truncate group-hover:text-f1-red transition-colors">{race.name}</h4>
                       <p className="text-sm text-gray-400 flex items-center gap-1 mt-1">
                         <MapPinIcon className="w-3 h-3" /> {race.track}

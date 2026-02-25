@@ -21,7 +21,8 @@ create table races (
   date timestamp with time zone not null,
   track text not null,
   status text default 'scheduled', -- scheduled, open, closed, finished
-  variable_driver_id bigint references drivers(id)
+  variable_driver_id bigint references drivers(id),
+  is_test_race boolean default false
 );
 
 -- Bets table

@@ -2,6 +2,7 @@ import { getAllBetsDetails } from './actions'
 import { calculateBetScore } from '@/utils/scoring'
 import Link from 'next/link'
 import { ArrowLeftIcon } from 'lucide-react'
+import ExportButton from './ExportButton'
 
 export default async function AdminDashboardPage({
     searchParams
@@ -48,6 +49,7 @@ export default async function AdminDashboardPage({
                     </Link>
                     <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
                 </div>
+                <ExportButton />
             </div>
 
             {/* Race Selector */}
@@ -57,8 +59,8 @@ export default async function AdminDashboardPage({
                         key={race.id}
                         href={`/admin/dashboard?raceId=${race.id}`}
                         className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${race.id === selectedRaceId
-                                ? 'bg-f1-red text-white font-bold'
-                                : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                            ? 'bg-f1-red text-white font-bold'
+                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
                             }`}
                     >
                         {race.name}
@@ -71,7 +73,7 @@ export default async function AdminDashboardPage({
                     <div className="flex justify-between items-end">
                         <h2 className="text-2xl font-bold text-white">{selectedRace.name}</h2>
                         <span className={`px-2 py-1 rounded text-xs uppercase font-bold ${selectedRace.status === 'open' ? 'bg-green-500/20 text-green-400' :
-                                selectedRace.status === 'finished' ? 'bg-gray-500/20 text-gray-400' : 'bg-yellow-500/20 text-yellow-400'
+                            selectedRace.status === 'finished' ? 'bg-gray-500/20 text-gray-400' : 'bg-yellow-500/20 text-yellow-400'
                             }`}>
                             {selectedRace.status}
                         </span>
