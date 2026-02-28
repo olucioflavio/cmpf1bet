@@ -45,6 +45,22 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
     const p5 = formData.get('p5')
     let bortoleto = formData.get('bortoleto')
     const variable = formData.get('variable')
+    const catapulta = formData.get('catapulta') === 'on'
+
+    // Validate Catapulta uniqueness server-side
+    if (catapulta) {
+        const { data: catapultaBet } = await supabase
+            .from('bets')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('catapulta', true)
+            .neq('race_id', raceId)
+            .maybeSingle()
+
+        if (catapultaBet) {
+            redirect(`/race/${raceId}?error=${encodeURIComponent('Você já usou a catapulta em outra corrida!')}`)
+        }
+    }
 
     // Validate no duplicate drivers in Top 5 ONLY (Pole can be anyone)
     const top5Drivers = [p1, p2, p3, p4, p5].filter(Boolean)
@@ -80,7 +96,8 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
         p4_driver_id: p4,
         p5_driver_id: p5,
         bortoleto_pos: bortoleto,
-        variable_driver_pos: variable
+        variable_driver_pos: variable,
+        catapulta: catapulta
     }
 
     // Check if bet exists
@@ -139,7 +156,8 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
                 p5: getDriverName(p5),
                 bortoleto: bortoleto as string,
                 variable: variable as string,
-                variableDriverName: 'Piloto Variável' // Could fetch specific name if needed but generic is fine for now
+                variableDriverName: 'Piloto Variável', // Could fetch specific name if needed but generic is fine for now
+                catapulta: catapulta
             }
         })
     }

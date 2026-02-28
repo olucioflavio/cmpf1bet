@@ -28,9 +28,10 @@ type Props = {
     userBet: Bet | null
     isClosed: boolean
     variableDriver: Driver | null
+    hasUsedCatapulta: boolean
 }
 
-export default function BetForm({ raceId, drivers, userBet, isClosed, variableDriver }: Props) {
+export default function BetForm({ raceId, drivers, userBet, isClosed, variableDriver, hasUsedCatapulta }: Props) {
     const defaultBortoletoPos = userBet?.bortoleto_pos?.toString() || ''
     const [bortoletoPos, setBortoletoPos] = useState(defaultBortoletoPos)
 
@@ -198,6 +199,35 @@ export default function BetForm({ raceId, drivers, userBet, isClosed, variableDr
                         />
                     </div>
                 )}
+            </div>
+
+            {/* Catapulta Toggle */}
+            <div className="border rounded-lg p-4 border-purple-500/50 bg-purple-900/10 mb-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h3 className="text-lg font-bold text-purple-400 flex items-center gap-2">
+                            <span>🚀</span> Catapulta
+                        </h3>
+                        <p className="text-sm text-gray-400 mt-1">
+                            Dobra os pontos desta corrida. Permitido apenas 1 vez por ano.
+                        </p>
+                        {hasUsedCatapulta && !userBet?.catapulta && (
+                            <p className="text-xs text-red-400 mt-1">
+                                Você já ativou a catapulta em outra corrida este ano.
+                            </p>
+                        )}
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            name="catapulta"
+                            className="sr-only peer"
+                            defaultChecked={userBet?.catapulta}
+                            disabled={isClosed || (hasUsedCatapulta && !userBet?.catapulta)}
+                        />
+                        <div className="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600 border border-gray-600"></div>
+                    </label>
+                </div>
             </div>
 
             {error && (

@@ -7,6 +7,7 @@ export interface Bet {
     p5_driver_id: number | string | null;
     bortoleto_pos: number | string | null;
     variable_driver_pos: number | string | null;
+    catapulta?: boolean;
 }
 
 export interface Result {
@@ -54,6 +55,11 @@ export function calculateBetScore(bet: Bet, result: Result): number {
     // Variable Driver Position
     if (bet.variable_driver_pos && bet.variable_driver_pos.toString() === result.variable_driver_pos?.toString()) {
         score += 1;
+    }
+
+    // Apply Catapulta multiplier
+    if (bet.catapulta) {
+        score *= 2;
     }
 
     return score;

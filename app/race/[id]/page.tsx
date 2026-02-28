@@ -19,15 +19,23 @@ export default async function RacePage(props: {
     }
 
     // Fetch race, drivers, and existing bet
-    const [raceResult, driversResult, betResult] = await Promise.all([
-        supabase.from('races').select('*, variable_driver:drivers!variable_driver_id(*)').eq('id', raceId).single(),
-        supabase.from('drivers').select('*').order('name'),
-        supabase.from('bets').select('*').eq('race_id', raceId).eq('user_id', user.id).single()
-    ])
+    const { data: raceResult } = await supabase.from('races').select('*, variable_driver:drivers!variable_driver_id(*)').eq('id', raceId).single()
+    const { data: driversResult } = await supabase.from('drivers').select('*').order('name')
+    const { data: betResult } = await supabase.from('bets').select('*').eq('race_id', raceId).eq('user_id', user.id).maybeSingle()
 
-    const race = raceResult.data
-    const drivers = driversResult.data || []
-    const userBet = betResult.data
+    // Check if user has used catapulta in any other race
+    const { data: catapultaBet } = await supabase
+        .from('bets')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('catapulta', true)
+        .neq('race_id', raceId)
+        .maybeSingle()
+
+    const race = raceResult
+    const drivers = driversResult || []
+    const userBet = betResult
+    const hasUsedCatapulta = !!catapultaBet
 
     if (!race) return <div>Corrida não encontrada</div>
 
@@ -46,9 +54,9 @@ export default async function RacePage(props: {
                     <div className="flex items-center gap-2">
                         <span className="text-gray-400">Status:</span>
                         <span className={`uppercase font-bold px-3 py-1 rounded-full text-sm ${actualStatus === 'open' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                                actualStatus === 'scheduled' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                    actualStatus === 'closed' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                                        'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                            actualStatus === 'scheduled' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                actualStatus === 'closed' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                                    'bg-gray-500/20 text-gray-400 border border-gray-500/30'
                             }`}>
                             {actualStatus === 'open' ? '🟢 Apostas Abertas' :
                                 actualStatus === 'scheduled' ? '🔵 Agendada' :
@@ -123,6 +131,7 @@ export default async function RacePage(props: {
                 userBet={userBet}
                 isClosed={isClosed}
                 variableDriver={variableDriver}
+                hasUsedCatapulta={hasUsedCatapulta}
             />
         </div>
     )

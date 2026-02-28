@@ -38,6 +38,7 @@ create table bets (
   p5_driver_id bigint references drivers(id),
   bortoleto_pos integer, -- 1-20 or maybe higher numbers for DNF codes if we want
   variable_driver_pos integer,
+  catapulta boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()),
   unique(user_id, race_id)
 );

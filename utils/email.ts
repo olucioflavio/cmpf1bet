@@ -17,6 +17,7 @@ type BetConfirmationProps = {
         bortoleto: string
         variable?: string
         variableDriverName?: string
+        catapulta: boolean
     }
 }
 
@@ -55,6 +56,7 @@ export async function sendBetConfirmation({ email, userName, raceName, track, be
               <li style="padding: 5px 0; border-bottom: 1px solid #eee;"><strong>P5:</strong> ${bets.p5}</li>
               <li style="padding: 5px 0; border-bottom: 1px solid #eee;"><strong>Gabrial Bortoleto:</strong> P${bets.bortoleto}</li>
               ${bets.variable ? `<li style="padding: 5px 0; border-bottom: 1px solid #eee;"><strong>${bets.variableDriverName}:</strong> P${bets.variable}</li>` : ''}
+              ${bets.catapulta ? `<li style="padding: 5px 0; border-bottom: 1px solid #eee; color: #8b5cf6;"><strong>🚀 Função Catapulta Ativada! (Pontos x2)</strong></li>` : ''}
             </ul>
           </div>
           
