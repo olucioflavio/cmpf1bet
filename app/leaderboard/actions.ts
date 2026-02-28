@@ -31,7 +31,7 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
     // 2. Fetch all finished races and their results
     const { data: results, error: resultsError } = await supabase
         .from('race_results')
-        .select('*')
+        .select('*, races(is_test_race)')
 
     if (resultsError) {
         console.error('Error fetching results:', resultsError)
@@ -61,13 +61,18 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
         let totalScore = 0
         let racesCompleted = 0
 
-        userBets.forEach(bet => {
-            const raceResult = results.find(r => r.race_id === bet.race_id)
-            if (raceResult) {
+        // Iterate over finished results to penalize missing bets
+        results.forEach(raceResult => {
+            const bet = userBets.find(b => b.race_id === raceResult.race_id)
+            if (bet) {
                 totalScore += calculateBetScore(bet, raceResult)
                 racesCompleted++
+            } else if (raceResult.races && !raceResult.races.is_test_race) {
+                // Apply -1 penalty for missing bet in an eligible finished race
+                totalScore -= 1
+                racesCompleted++
             }
-        })
+        });
 
         return {
             ...profile,

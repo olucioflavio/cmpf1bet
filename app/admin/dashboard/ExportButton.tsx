@@ -35,11 +35,21 @@ export default function ExportButton() {
                 const raceBets = data.bets.filter(b => b.race_id === race.id)
                 const raceResult = data.results.find(r => r.race_id === race.id)
 
-                for (const bet of raceBets) {
-                    const profile = data.profiles.find(p => p.id === bet.user_id)
-                    if (!profile) continue
+                for (const profile of data.profiles) {
+                    const bet = raceBets.find(b => b.user_id === profile.id)
+                    let score = 0
 
-                    const score = raceResult ? calculateBetScore(bet, raceResult) : 0
+                    if (bet && raceResult) {
+                        score = calculateBetScore(bet, raceResult)
+                    } else if (!bet && raceResult && !race.is_test_race) {
+                        score = -1
+                    } else if (bet) {
+                        score = 0
+                    } else {
+                        // Skipping missing bets for unfinished races in export? Or export with 0/empty?
+                        // Let's just continue if there's no bet and no result
+                        if (!raceResult) continue;
+                    }
 
                     const getDriverName = (id: any) => data.drivers.find(d => d.id.toString() === id?.toString())?.name || id || ''
 
@@ -48,14 +58,14 @@ export default function ExportButton() {
                         profile.username || profile.full_name || 'N/A',
                         profile.email || 'N/A',
                         score,
-                        getDriverName(bet.pole_driver_id),
-                        getDriverName(bet.p1_driver_id),
-                        getDriverName(bet.p2_driver_id),
-                        getDriverName(bet.p3_driver_id),
-                        getDriverName(bet.p4_driver_id),
-                        getDriverName(bet.p5_driver_id),
-                        bet.bortoleto_pos || '',
-                        bet.variable_driver_pos || ''
+                        getDriverName(bet?.pole_driver_id),
+                        getDriverName(bet?.p1_driver_id),
+                        getDriverName(bet?.p2_driver_id),
+                        getDriverName(bet?.p3_driver_id),
+                        getDriverName(bet?.p4_driver_id),
+                        getDriverName(bet?.p5_driver_id),
+                        bet?.bortoleto_pos || '',
+                        bet?.variable_driver_pos || ''
                     ])
                 }
             }

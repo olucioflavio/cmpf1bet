@@ -42,7 +42,12 @@ export function calculateBetScore(bet: Bet, result: Result): number {
     if (p4Match) score += 1;
     if (p5Match) score += 1;
 
-    // Bonus for all Top 5 correct
+    // Bonus for top 3 correct
+    if (p1Match && p2Match && p3Match) {
+        score += 1;
+    }
+
+    // Bonus for all Top 5 correct (+1 on top of the +1 from top 3)
     if (p1Match && p2Match && p3Match && p4Match && p5Match) {
         score += 1;
     }

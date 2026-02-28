@@ -26,6 +26,8 @@ export default async function AdminDashboardPage({
         let score = 0
         if (userBet && raceResult) {
             score = calculateBetScore(userBet, raceResult)
+        } else if (!userBet && raceResult && selectedRace && !selectedRace.is_test_race) {
+            score = -1
         } else if (userBet) {
             // Bet exists but no result yet
             score = 0 // pending
@@ -36,9 +38,7 @@ export default async function AdminDashboardPage({
             bet: userBet,
             score
         }
-    }).filter(p => p.bet) // Only show users who bet? Or show all? Let's show all who bet for now.
-        // Actually simpler to just list the bets found
-        .sort((a, b) => b.score - a.score)
+    }).sort((a, b) => b.score - a.score)
 
     return (
         <div className="flex-1 w-full flex flex-col gap-8 p-8 max-w-[1600px] mx-auto">

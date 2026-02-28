@@ -44,7 +44,11 @@ export async function getUserPerformance() {
     // 3. Combine data
     const performance = results.map(result => {
         const bet = bets?.find(b => b.race_id === result.race_id)
-        const score = bet ? calculateBetScore(bet, result) : 0
+        let score = bet ? calculateBetScore(bet, result) : 0
+
+        if (!bet && result.races && !result.races.is_test_race) {
+            score = -1
+        }
 
         // Calculate detailed breakdown
         const breakdown = {
@@ -61,13 +65,17 @@ export async function getUserPerformance() {
         // Check for bonus (all top 5 correct)
         const top5AllCorrect = breakdown.p1 && breakdown.p2 && breakdown.p3 && breakdown.p4 && breakdown.p5;
 
+        // Check for top 3 bonus
+        const top3Correct = breakdown.p1 && breakdown.p2 && breakdown.p3;
+
         return {
             race: result.races,
             result,
             bet,
             score,
             breakdown,
-            bonus: top5AllCorrect
+            bonus: top5AllCorrect,
+            bonusTop3: top3Correct
         }
     })
 

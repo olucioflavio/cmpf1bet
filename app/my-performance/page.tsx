@@ -46,9 +46,14 @@ export default async function MyPerformancePage() {
                                     <div>
                                         <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
                                             {perf.race.name}
+                                            {perf.bonusTop3 && !perf.bonus && (
+                                                <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-xs border border-blue-500/30 flex items-center gap-1">
+                                                    <MedalIcon className="w-3 h-3" /> Bônus Top 3! (+1 pt)
+                                                </span>
+                                            )}
                                             {perf.bonus && (
                                                 <span className="px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-500 text-xs border border-yellow-500/30 flex items-center gap-1">
-                                                    <MedalIcon className="w-3 h-3" /> Bônus Top 5!
+                                                    <MedalIcon className="w-3 h-3" /> Bônus Top 5! (+2 pts)
                                                 </span>
                                             )}
                                         </h3>
@@ -78,8 +83,9 @@ export default async function MyPerformancePage() {
                                 </div>
 
                                 {!perf.bet && (
-                                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center">
                                         <p className="text-xl font-bold text-gray-300">Você não apostou nesta corrida</p>
+                                        <p className="text-red-400 font-bold mt-2 bg-red-500/10 px-4 py-1 rounded-full border border-red-500/30">Penalidade: -1 Ponto</p>
                                     </div>
                                 )}
                             </div>
