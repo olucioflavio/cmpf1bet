@@ -89,14 +89,14 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
     const betData = {
         user_id: user.id,
         race_id: raceId,
-        pole_driver_id: pole,
-        p1_driver_id: p1,
-        p2_driver_id: p2,
-        p3_driver_id: p3,
-        p4_driver_id: p4,
-        p5_driver_id: p5,
-        bortoleto_pos: bortoleto,
-        variable_driver_pos: variable,
+        pole_driver_id: pole ? parseInt(pole as string) : null,
+        p1_driver_id: p1 ? parseInt(p1 as string) : null,
+        p2_driver_id: p2 ? parseInt(p2 as string) : null,
+        p3_driver_id: p3 ? parseInt(p3 as string) : null,
+        p4_driver_id: p4 ? parseInt(p4 as string) : null,
+        p5_driver_id: p5 ? parseInt(p5 as string) : null,
+        bortoleto_pos: bortoleto ? parseInt(bortoleto as string) : null,
+        variable_driver_pos: variable ? parseInt(variable as string) : null,
         catapulta: catapulta
     }
 
@@ -106,7 +106,7 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
         .select('id')
         .eq('user_id', user.id)
         .eq('race_id', raceId)
-        .single()
+        .maybeSingle()
 
     // Insert or Update logic...
     let error
@@ -124,8 +124,8 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
     }
 
     if (error) {
-        console.error('Error placing bet:', error)
-        redirect(`/race/${raceId}?error=${encodeURIComponent('Erro ao salvar aposta. Tente novamente.')}`)
+        console.error('Error placing bet:', JSON.stringify(error))
+        redirect(`/race/${raceId}?error=${encodeURIComponent(`Erro ao salvar aposta: ${error.message}`)}`)
     }
 
     // --- Send Confirmation Email ---
@@ -164,5 +164,5 @@ export async function submitRaceBet(formData: FormData): Promise<void> {
     // -------------------------------
 
     revalidatePath(`/race/${raceId}`)
-    redirect(`/race/${raceId}?success=true`)
+    redirect(`/race/${raceId}/confirmation`)
 }

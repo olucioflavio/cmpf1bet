@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { submitRaceBet } from './actions'
 import BetForm from './BetForm'
 import { calculateRaceStatus, getRaceBettingInfo } from '@/utils/raceStatus'
@@ -133,6 +134,15 @@ export default async function RacePage(props: {
                 variableDriver={variableDriver}
                 hasUsedCatapulta={hasUsedCatapulta}
             />
+
+            {userBet && (
+                <Link
+                    href={`/race/${raceId}/confirmation`}
+                    className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-center text-sm"
+                >
+                    📋 Ver Comprovante da Aposta
+                </Link>
+            )}
         </div>
     )
 }
