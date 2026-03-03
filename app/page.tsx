@@ -4,6 +4,8 @@ import { CalendarIcon, MapPinIcon, ChevronRightIcon, ClockIcon, TrophyIcon } fro
 import NewsSection from '@/components/NewsSection'
 import { getLeaderboard } from './leaderboard/actions'
 import { calculateRaceStatus } from '@/utils/raceStatus'
+import fs from 'fs/promises'
+import path from 'path'
 
 export default async function Index() {
   const supabase = await createClient()
@@ -64,6 +66,28 @@ export default async function Index() {
     racesWithStatus?.find(r => r.calculatedStatus === 'open') ||
     racesWithStatus?.find(r => new Date(r.date) > now) ||
     racesWithStatus?.[0]
+
+  // Read curious facts
+  let randomFact = "A Ferrari é a única equipe presente na F1 desde 1950."
+  try {
+    const factsFilePath = path.join(process.cwd(), 'fatos_curiosos_f1_divididos_por_topicos.csv')
+    const factsFileContent = await fs.readFile(factsFilePath, 'utf-8')
+    const factsLines = factsFileContent.split('\n').slice(1).filter(line => line.trim())
+    const facts = factsLines.map(line => {
+      const commaIndex = line.indexOf(',')
+      if (commaIndex === -1) return line
+      let fact = line.substring(commaIndex + 1).trim()
+      if (fact.startsWith('"') && fact.endsWith('"')) {
+        fact = fact.substring(1, fact.length - 1)
+      }
+      return fact
+    })
+    if (facts.length > 0) {
+      randomFact = facts[Math.floor(Math.random() * facts.length)]
+    }
+  } catch (error) {
+    console.error('Error reading facts file:', error)
+  }
 
   // Format date for the next race countdown style
   const nextRaceDate = nextRace ? new Date(nextRace.date) : null
@@ -178,9 +202,12 @@ export default async function Index() {
                   </div>
                 </div>
               </div>
-              <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/5">
-                <p className="text-xs text-gray-400 mb-2">Dica do dia</p>
-                <p className="text-sm italic text-gray-200">"Monza favorece alta velocidade. Fique de olho na Williams."</p>
+              <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-2 opacity-10">
+                  <ClockIcon className="w-8 h-8" />
+                </div>
+                <p className="text-xs text-f1-red font-bold uppercase tracking-wider mb-2">Você sabia?</p>
+                <p className="text-sm italic text-gray-200 leading-relaxed">"{randomFact}"</p>
               </div>
             </div>
           </div>
