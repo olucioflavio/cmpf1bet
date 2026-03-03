@@ -20,10 +20,10 @@ export default async function LeaderboardPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="border-b border-white/10 bg-white/5">
-                                    <th className="p-6 font-bold text-gray-300 w-20 text-center">Pos</th>
-                                    <th className="p-6 font-bold text-gray-300">Competidor</th>
-                                    <th className="p-6 font-bold text-gray-300 text-right">Pontos Totais</th>
+                                <tr className="border-b border-white/10 bg-white/5 text-xs md:text-sm">
+                                    <th className="p-3 md:p-6 font-bold text-gray-300 w-16 md:w-20 text-center">Pos</th>
+                                    <th className="p-3 md:p-6 font-bold text-gray-300">Competidor</th>
+                                    <th className="p-3 md:p-6 font-bold text-gray-300 text-right">Pontos</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
@@ -36,33 +36,33 @@ export default async function LeaderboardPage() {
 
                                     return (
                                         <tr key={user.id} className="group hover:bg-white/5 transition-colors">
-                                            <td className="p-6 text-center">
-                                                <span className={`text-xl ${posColor}`}>
+                                            <td className="p-3 md:p-6 text-center">
+                                                <span className={`text-lg md:text-xl ${posColor}`}>
                                                     {position}º
                                                 </span>
                                             </td>
-                                            <td className="p-6">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${position === 1 ? 'bg-yellow-500/20 text-yellow-500' :
+                                            <td className="p-3 md:p-6">
+                                                <div className="flex items-center gap-2 md:gap-3">
+                                                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 ${position === 1 ? 'bg-yellow-500/20 text-yellow-500' :
                                                         position === 2 ? 'bg-gray-300/20 text-gray-300' :
                                                             position === 3 ? 'bg-amber-600/20 text-amber-600' :
                                                                 'bg-white/10 text-gray-400'
                                                         }`}>
-                                                        {position <= 3 ? <MedalIcon className="w-5 h-5" /> : <UserIcon className="w-5 h-5" />}
+                                                        {position <= 3 ? <MedalIcon className="w-4 h-4 md:w-5 md:h-5" /> : <UserIcon className="w-4 h-4 md:w-5 md:h-5" />}
                                                     </div>
-                                                    <div>
-                                                        <p className="font-bold text-white text-lg group-hover:text-f1-red transition-colors">
+                                                    <div className="min-w-0">
+                                                        <p className="font-bold text-white text-sm md:text-lg group-hover:text-f1-red transition-colors truncate">
                                                             {user.full_name || user.username || 'Desconhecido'}
                                                         </p>
-                                                        <p className="text-xs text-gray-500 font-mono">@{user.username}</p>
+                                                        <p className="text-[10px] md:text-xs text-gray-500 font-mono truncate">@{user.username}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="p-6 text-right">
-                                                <span className="text-2xl font-black italic text-white font-mono">
+                                            <td className="p-3 md:p-6 text-right whitespace-nowrap">
+                                                <span className="text-lg md:text-2xl font-black italic text-white font-mono">
                                                     {user.calculatedPoints}
                                                 </span>
-                                                <span className="text-xs text-gray-500 ml-1">PTS</span>
+                                                <span className="text-[10px] md:text-xs text-gray-500 ml-1">PTS</span>
                                             </td>
                                         </tr>
                                     )

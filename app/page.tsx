@@ -97,13 +97,21 @@ export default async function Index() {
       <div className="w-full max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
 
         {/* Header */}
-        <header className="mb-10 flex flex-col md:flex-row justify-between items-end gap-4">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-2">
+        <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div className="max-w-2xl">
+            <h1 className="text-[clamp(1.875rem,5vw,3rem)] font-bold tracking-tighter text-white mb-2 leading-[1.1]">
               Bem-vindo de volta, <span className="text-f1-red">{profile?.username || user?.email?.split('@')[0] || 'Pitaqueiro'}</span>
             </h1>
-            <p className="text-gray-400">Pronto para apostar na temporada 2026?</p>
+            <p className="text-gray-400 text-sm md:text-base mb-6 md:mb-0">Pronto para acelerar seus palpites na temporada 2026?</p>
+
+            {/* Mobile Round Status */}
+            <div className="md:hidden flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit">
+              <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Status:</span>
+              <p className="text-sm font-bold text-white">Rodada {officialRaces.length > 0 ? (nextRace?.is_test_race ? 0 : officialRaces.findIndex(r => r.id === nextRace?.id) + 1 || 1) : 1} / {officialRaces.length || 22}</p>
+            </div>
           </div>
+
+          {/* Desktop Round Status */}
           <div className="hidden md:block">
             <div className="text-right">
               <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">Status da Temporada</span>
@@ -114,8 +122,8 @@ export default async function Index() {
 
         {/* Hero Section - Next Race */}
         {nextRace && (
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="md:col-span-2 glass-panel p-8 rounded-3xl relative overflow-hidden group">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12">
+            <div className="md:col-span-2 glass-panel p-6 md:p-10 rounded-[2rem] relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-f1-red/20 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
 
               <div className="relative z-10 flex flex-col h-full justify-between">
@@ -131,10 +139,10 @@ export default async function Index() {
                         </span>
                       )}
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-black italic text-white mb-1 uppercase">
+                    <h2 className="text-[clamp(1.5rem,4vw,3rem)] font-black italic text-white mb-1 uppercase tracking-tight">
                       {nextRace.name}
                     </h2>
-                    <div className="flex items-center gap-2 text-gray-300">
+                    <div className="flex items-center gap-2 text-gray-400 text-sm md:text-base">
                       <MapPinIcon className="w-4 h-4 text-f1-red" />
                       <span className="font-medium">{nextRace.track}</span>
                     </div>
@@ -150,19 +158,19 @@ export default async function Index() {
                     const hoursRemaining = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
 
                     return (
-                      <div className="flex gap-4">
+                      <div className="flex gap-4 md:gap-6">
                         <div className="text-center">
-                          <span className="block text-4xl font-bold text-white font-mono">
+                          <span className="block text-3xl md:text-5xl font-bold text-white font-mono leading-none">
                             {daysRemaining.toString().padStart(2, '0')}
                           </span>
-                          <span className="text-xs text-gray-400 uppercase">Dias</span>
+                          <span className="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mt-1 block">Dias</span>
                         </div>
-                        <span className="text-2xl font-bold text-gray-600 self-center">:</span>
+                        <span className="text-2xl md:text-4xl font-bold text-gray-700 self-start mt-1">:</span>
                         <div className="text-center">
-                          <span className="block text-4xl font-bold text-white font-mono">
+                          <span className="block text-3xl md:text-5xl font-bold text-white font-mono leading-none">
                             {hoursRemaining.toString().padStart(2, '0')}
                           </span>
-                          <span className="text-xs text-gray-400 uppercase">Horas</span>
+                          <span className="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mt-1 block">Horas</span>
                         </div>
                       </div>
                     )
@@ -170,7 +178,7 @@ export default async function Index() {
 
                   <Link
                     href={`/race/${nextRace.id}`}
-                    className="group/btn relative px-8 py-3 bg-f1-red text-white font-bold rounded-xl overflow-hidden transition-transform hover:scale-105 active:scale-95"
+                    className="group/btn w-full sm:w-auto relative px-10 py-4 bg-f1-red text-white font-bold rounded-2xl overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl shadow-f1-red/20 text-center"
                   >
                     <span className="relative z-10 flex items-center gap-2">
                       {userBets.some(b => b.race_id === nextRace.id) ? 'Editar Aposta' : 'Apostar Agora'} <ChevronRightIcon className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -182,7 +190,7 @@ export default async function Index() {
             </div>
 
             {/* Live Odds / Mini Stats Card */}
-            <div className="glass-panel p-6 rounded-3xl flex flex-col justify-between">
+            <div className="glass-panel p-6 md:p-8 rounded-[2rem] flex flex-col justify-between gap-6">
               <div>
                 <h3 className="text-lg font-bold text-white mb-4">Estatísticas Rápidas</h3>
                 <div className="space-y-4">

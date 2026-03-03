@@ -29,7 +29,11 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    await supabase.auth.getUser()
+    try {
+        await supabase.auth.getUser()
+    } catch (e) {
+        // Silently handle auth errors in middleware
+    }
 
     return supabaseResponse
 }
