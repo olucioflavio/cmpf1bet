@@ -26,7 +26,7 @@ export default function ExportButton() {
                 'P4 Driver',
                 'P5 Driver',
                 'Bortoleto Pos',
-                'Variable Driver Pos'
+                'Pos Piloto da Rodada'
             ]
 
             const rows = []

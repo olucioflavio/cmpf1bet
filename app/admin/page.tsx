@@ -30,6 +30,9 @@ export default async function AdminPage(props: {
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                 <div className="flex gap-4">
+                    <a href="/admin/bets-summary" className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors text-sm">
+                        📊 Resumo Apostas
+                    </a>
                     <a href="/admin/dashboard" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm">
                         Ver Dashboard Completo
                     </a>
@@ -61,7 +64,7 @@ export default async function AdminPage(props: {
                             <th className="p-3">Date</th>
                             <th className="p-3">Status Automático</th>
                             <th className="p-3">Status Manual</th>
-                            <th className="p-3">Variable Driver</th>
+                            <th className="p-3">da Rodada</th>
                             <th className="p-3">Resultados</th>
                             <th className="p-3">Actions</th>
                         </tr>

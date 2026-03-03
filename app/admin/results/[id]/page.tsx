@@ -45,7 +45,7 @@ export default async function RaceResultsPage(props: {
                 <p className="text-sm"><strong className="text-amber-400">Circuito:</strong> {race.track}</p>
                 <p className="text-sm"><strong className="text-amber-400">Data:</strong> {new Date(race.date).toLocaleDateString()}</p>
                 {race.variable_driver && (
-                    <p className="text-sm"><strong className="text-amber-400">Piloto Variável:</strong> {race.variable_driver.name}</p>
+                    <p className="text-sm"><strong className="text-amber-400">Piloto da Rodada:</strong> {race.variable_driver.name}</p>
                 )}
             </div>
 

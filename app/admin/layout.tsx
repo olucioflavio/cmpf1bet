@@ -35,6 +35,7 @@ export default async function AdminLayout({
                     <h1 className="text-xl font-bold">Painel Administrativo</h1>
                     <nav className="flex gap-4">
                         <Link href="/admin" className="hover:text-green-400">Corridas</Link>
+                        <Link href="/admin/bets-summary" className="hover:text-green-400">Apostas</Link>
                         <Link href="/admin/users" className="hover:text-green-400">Usuários</Link>
                         <Link href="/" className="hover:text-green-400">Voltar ao Site</Link>
                     </nav>

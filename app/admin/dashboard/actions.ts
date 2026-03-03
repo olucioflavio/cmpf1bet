@@ -6,7 +6,7 @@ export async function getAllBetsDetails() {
     const supabase = createAdminClient()
 
     // Fetch everything we need
-    const { data: races } = await supabase.from('races').select('*').order('date', { ascending: false })
+    const { data: races } = await supabase.from('races').select('*').order('date', { ascending: true })
     const { data: profiles } = await supabase.from('profiles').select('*').neq('role', 'admin')
     const { data: bets } = await supabase.from('bets').select('*')
     const { data: results } = await supabase.from('race_results').select('*')

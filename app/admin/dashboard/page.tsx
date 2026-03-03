@@ -93,7 +93,7 @@ export default async function AdminDashboardPage({
                                         <th className="p-3">P4</th>
                                         <th className="p-3">P5</th>
                                         <th className="p-3">Bortoleto</th>
-                                        <th className="p-3">Variável</th>
+                                        <th className="p-3">da Rodada</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
