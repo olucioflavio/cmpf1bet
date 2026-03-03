@@ -129,6 +129,7 @@ export function getOpeningDate(raceDate: Date): Date {
  */
 export function formatDate(date: Date): string {
     return date.toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
         weekday: 'long',
         year: 'numeric',
         month: 'long',

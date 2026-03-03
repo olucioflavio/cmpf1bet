@@ -93,6 +93,7 @@ export default async function BetsSummaryPage() {
     const formatDateTime = (dateStr: string) => {
         const d = new Date(dateStr)
         return d.toLocaleString('pt-BR', {
+            timeZone: 'America/Sao_Paulo',
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
@@ -127,7 +128,7 @@ export default async function BetsSummaryPage() {
                         </div>
                         <p className="text-gray-400 text-sm">
                             📍 {currentRace.track} • 📅 {new Date(currentRace.date).toLocaleDateString('pt-BR', {
-                                weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+                                timeZone: 'America/Sao_Paulo', weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
                             })}
                         </p>
                         {currentRace.variable_driver && (
