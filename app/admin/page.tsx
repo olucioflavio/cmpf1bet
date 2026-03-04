@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { updateRaceStatus, setVariableDriver, resetRaceToAutoStatus } from './actions'
+import AdminRaceList from './AdminRaceList'
+import { BarChart3, LayoutDashboard, Info, Trophy } from 'lucide-react'
 import { calculateRaceStatus, calculateAutoStatus, getRaceBettingInfo } from '@/utils/raceStatus'
 
 export default async function AdminPage(props: {
@@ -19,180 +20,77 @@ export default async function AdminPage(props: {
         .single()
 
     if (profile?.role !== 'admin') {
-        return <div className="p-10 text-center">Unauthorized. You are not an admin.</div>
+        return <div className="p-10 text-center text-white">Ops! Acesso restrito apenas para administradores.</div>
     }
 
     const { data: races } = await supabase.from('races').select('*').order('date', { ascending: true })
     const { data: drivers } = await supabase.from('drivers').select('*').order('name')
 
     return (
-        <div className="flex-1 w-full max-w-6xl p-4 flex flex-col gap-6">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-                <div className="flex gap-4">
-                    <a href="/admin/bets-summary" className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors text-sm">
-                        📊 Resumo Apostas
-                    </a>
-                    <a href="/admin/dashboard" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm">
-                        Ver Dashboard Completo
-                    </a>
+        <div className="flex-1 w-full flex flex-col items-center py-6 md:py-10 px-4 md:px-8">
+            <div className="w-full max-w-7xl flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+
+                {/* Header Responsivo */}
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-8">
+                    <div className="max-w-xl">
+                        <div className="flex items-center gap-2 text-f1-red font-black uppercase tracking-widest text-[10px] mb-2">
+                            <LayoutDashboard size={14} /> Painel de Controle
+                        </div>
+                        <h1 className="text-[clamp(1.75rem,5vw,2.5rem)] font-bold tracking-tighter text-white leading-none">
+                            Gestão de Corridas
+                        </h1>
+                        <p className="text-gray-400 mt-2 text-sm">Controle de status, pilotos e resultados da temporada.</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                        <a href="/admin/bets-summary" className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-2xl font-bold transition-all active:scale-95 text-xs uppercase tracking-wider">
+                            <BarChart3 size={16} className="text-green-500" /> Resumo
+                        </a>
+                        <a href="/admin/dashboard" className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-f1-red hover:bg-red-700 text-white rounded-2xl font-bold font-f1 transition-all active:scale-95 text-xs uppercase tracking-wider shadow-lg shadow-red-900/20">
+                            Dashboard
+                        </a>
+                    </div>
+                </header>
+
+                {searchParams.success === 'results_saved' && (
+                    <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-5 py-4 rounded-2xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300">
+                        <Trophy size={20} />
+                        <span className="font-bold text-sm">Resultados salvos com sucesso!</span>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    {/* Sidebar Info - Desktop Only or top centered in mobile as Info Card */}
+                    <div className="lg:col-span-1 flex flex-col gap-4 order-2 lg:order-1">
+                        <div className="glass-panel rounded-3xl p-6 border border-blue-500/20 bg-blue-500/5">
+                            <h3 className="text-blue-400 font-black uppercase text-[10px] tracking-widest mb-4 flex items-center gap-2">
+                                <Info size={14} /> Guia de Status
+                            </h3>
+                            <ul className="space-y-4 text-xs">
+                                <li className="flex gap-3">
+                                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500 mt-1"></span>
+                                    <p className="text-gray-300 leading-relaxed"><strong className="text-white block mb-0.5">Automático:</strong> Abre 5 dias antes e fecha sexta 23:59.</p>
+                                </li>
+                                <li className="flex gap-3">
+                                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-orange-500 mt-1"></span>
+                                    <p className="text-gray-300 leading-relaxed"><strong className="text-white block mb-0.5">Manual:</strong> Sobrescreve o cálculo de data.</p>
+                                </li>
+                                <li className="flex gap-3">
+                                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-green-500 mt-1"></span>
+                                    <p className="text-gray-300 leading-relaxed"><strong className="text-white block mb-0.5">Reset Auto:</strong> Volta a seguir o calendário oficial.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Main Content - List of Races */}
+                    <div className="lg:col-span-3 order-1 lg:order-2">
+                        <AdminRaceList
+                            initialRaces={races || []}
+                            drivers={drivers || []}
+                        />
+                    </div>
                 </div>
-            </div>
-
-            {searchParams.success === 'results_saved' && (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                    Resultados salvos com sucesso!
-                </div>
-            )}
-
-            {/* Info Card */}
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-4">
-                <h3 className="text-blue-400 font-bold mb-2">ℹ️ Sistema de Status Automático</h3>
-                <div className="text-sm text-gray-300 space-y-1">
-                    <p>• <strong>Status Automático:</strong> Calculado baseado na data (abre 5 dias antes, fecha sexta 23:59)</p>
-                    <p>• <strong>Status Manual:</strong> Definido manualmente pelo admin (sobrescreve o automático)</p>
-                    <p>• <strong>⚠️ MANUAL:</strong> Indica que o status foi alterado manualmente</p>
-                    <p>• <strong>🔄 Reset Auto:</strong> Remove override manual e volta para o status automático</p>
-                </div>
-            </div>
-
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="border-b border-gray-700">
-                            <th className="p-3">Race</th>
-                            <th className="p-3">Date</th>
-                            <th className="p-3">Status Automático</th>
-                            <th className="p-3">Status Manual</th>
-                            <th className="p-3">da Rodada</th>
-                            <th className="p-3">Resultados</th>
-                            <th className="p-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {races?.map(race => {
-                            // Status automático puro (sempre calculado, ignora override)
-                            const autoStatus = calculateAutoStatus(race.date)
-
-                            // Status efetivo (respeita override manual)
-                            const effectiveStatus = calculateRaceStatus(race.date, race.status)
-
-                            const bettingInfo = getRaceBettingInfo(race.date)
-
-                            // Há override manual se o status no banco for diferente de 'scheduled'
-                            // E se for diferente do que seria calculado automaticamente
-                            const isManualOverride = race.status !== 'scheduled' && race.status !== autoStatus
-
-                            return (
-                                <tr key={race.id} className="border-b border-gray-800 hover:bg-gray-900/50">
-                                    <td className="p-3 font-medium">{race.name}</td>
-                                    <td className="p-3 text-sm text-gray-400">
-                                        {new Date(race.date).toLocaleDateString()}
-                                        {race.is_test_race && (
-                                            <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">
-                                                TESTE
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="p-3">
-                                        <div className="flex flex-col gap-1">
-                                            <span className={`px-2 py-1 rounded text-xs uppercase w-fit ${autoStatus === 'open' ? 'bg-green-900 text-green-300' :
-                                                autoStatus === 'closed' ? 'bg-red-900 text-red-300' :
-                                                    autoStatus === 'finished' ? 'bg-gray-800 text-gray-500' :
-                                                        'bg-blue-900 text-blue-300'
-                                                }`}>
-                                                {autoStatus === 'open' ? '🟢 Open' :
-                                                    autoStatus === 'closed' ? '🔴 Closed' :
-                                                        autoStatus === 'finished' ? '🏁 Finished' :
-                                                            '🔵 Scheduled'}
-                                            </span>
-                                            {autoStatus === 'scheduled' && (
-                                                <span className="text-[10px] text-gray-500">
-                                                    Abre: {bettingInfo.openingDate.toLocaleDateString()}
-                                                </span>
-                                            )}
-                                            {autoStatus === 'open' && (
-                                                <span className="text-[10px] text-gray-500">
-                                                    Fecha: {bettingInfo.closingDate.toLocaleDateString()} 23:59
-                                                </span>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="p-3">
-                                        <div className="flex flex-col gap-1">
-                                            <span className={`px-2 py-1 rounded text-xs uppercase w-fit ${race.status === 'open' ? 'bg-green-900 text-green-300' :
-                                                race.status === 'finished' ? 'bg-gray-800 text-gray-500' :
-                                                    race.status === 'closed' ? 'bg-red-900 text-red-300' :
-                                                        'bg-blue-900 text-blue-300'
-                                                }`}>
-                                                {race.status}
-                                            </span>
-                                            {isManualOverride && (
-                                                <span className="text-[10px] text-orange-400 font-bold">
-                                                    ⚠️ MANUAL
-                                                </span>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="p-3">
-                                        <form action={async (formData) => {
-                                            'use server'
-                                            await setVariableDriver(race.id, parseInt(formData.get('driverId') as string))
-                                        }}>
-                                            <select
-                                                name="driverId"
-                                                defaultValue={race.variable_driver_id || ''}
-                                                className="bg-gray-900 border border-gray-700 rounded p-1 text-sm max-w-[150px]"
-                                            >
-                                                <option value="">None</option>
-                                                {drivers?.map(d => (
-                                                    <option key={d.id} value={d.id}>{d.name}</option>
-                                                ))}
-                                            </select>
-                                            <button className="ml-2 text-xs bg-blue-600 px-2 py-1 rounded">Set</button>
-                                        </form>
-                                    </td>
-                                    <td className="p-3">
-                                        <a
-                                            href={`/admin/results/${race.id}`}
-                                            className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-xs inline-block"
-                                        >
-                                            Resultados
-                                        </a>
-                                    </td>
-                                    <td className="p-3">
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex gap-2">
-                                                <form action={updateRaceStatus.bind(null, race.id, 'open')}>
-                                                    <button className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-xs" title="Forçar abertura manual">
-                                                        Open
-                                                    </button>
-                                                </form>
-                                                <form action={updateRaceStatus.bind(null, race.id, 'closed')}>
-                                                    <button className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-xs" title="Forçar fechamento manual">
-                                                        Close
-                                                    </button>
-                                                </form>
-                                                <form action={updateRaceStatus.bind(null, race.id, 'finished')}>
-                                                    <button className="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded text-xs" title="Marcar como finalizada">
-                                                        Finish
-                                                    </button>
-                                                </form>
-                                            </div>
-                                            {isManualOverride && (
-                                                <form action={resetRaceToAutoStatus.bind(null, race.id)}>
-                                                    <button className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs w-full" title="Resetar para status automático">
-                                                        🔄 Reset Auto
-                                                    </button>
-                                                </form>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            )
-                        })}
-                    </tbody>
-                </table>
             </div>
         </div>
     )

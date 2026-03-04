@@ -1,0 +1,17 @@
+{
+    "name": "CPMF1 Bet",
+    "short_name": "CMPF1",
+    "description": "Aposte nas corridas de F1 2026",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#e10600",
+    "icons": [
+        {
+            "src": "/icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
