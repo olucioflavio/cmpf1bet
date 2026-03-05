@@ -170,13 +170,13 @@ export default function BetForm({ raceId, drivers, userBet, isClosed, variableDr
                     <input
                         type="number"
                         min="1"
-                        max="20"
+                        max="22"
                         name="bortoleto"
                         value={bortoletoPos}
                         onChange={(e) => setBortoletoPos(e.target.value)}
                         disabled={isClosed}
                         className="w-full p-2 rounded bg-gray-900 border border-gray-700 focus:border-yellow-500 outline-none"
-                        placeholder="1-20"
+                        placeholder="1-22"
                         required
                     />
                 </div>
@@ -189,12 +189,12 @@ export default function BetForm({ raceId, drivers, userBet, isClosed, variableDr
                         <input
                             type="number"
                             min="1"
-                            max="20"
+                            max="22"
                             name="variable"
                             defaultValue={userBet?.variable_driver_pos || ''}
                             disabled={isClosed}
                             className="w-full p-2 rounded bg-gray-900 border border-gray-700 focus:border-orange-500 outline-none"
-                            placeholder="1-20"
+                            placeholder="1-22"
                             required
                         />
                     </div>
