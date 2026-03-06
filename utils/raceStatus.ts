@@ -37,9 +37,7 @@ export function calculateRaceStatus(raceDate: string | Date, currentStatus?: str
     const closingDate = getClosingDate(race)
 
     // Calcular 5 dias antes da corrida (abertura)
-    const openingDate = new Date(race)
-    openingDate.setDate(openingDate.getDate() - 5)
-    openingDate.setHours(0, 0, 0, 0) // Meia-noite do dia de abertura
+    const openingDate = getOpeningDate(race)
 
     // Lógica de status automático:
     // 1. Se passou da sexta-feira 23:59 antes da corrida -> closed
@@ -70,9 +68,7 @@ export function calculateAutoStatus(raceDate: string | Date): RaceStatus {
     const closingDate = getClosingDate(race)
 
     // Calcular 5 dias antes da corrida (abertura)
-    const openingDate = new Date(race)
-    openingDate.setDate(openingDate.getDate() - 5)
-    openingDate.setHours(0, 0, 0, 0)
+    const openingDate = getOpeningDate(race)
 
     if (now > closingDate) {
         return 'closed'
@@ -90,7 +86,7 @@ export function calculateAutoStatus(raceDate: string | Date): RaceStatus {
  */
 export function getClosingDate(raceDate: Date): Date {
     const race = new Date(raceDate)
-    const raceDayOfWeek = race.getDay() // 0 = Domingo, 6 = Sábado
+    const raceDayOfWeek = race.getUTCDay() // 0 = Domingo, 6 = Sábado
 
     // Encontrar a sexta-feira anterior
     let daysToSubtract = 0
@@ -106,10 +102,15 @@ export function getClosingDate(raceDate: Date): Date {
     }
 
     const closingDate = new Date(race)
-    closingDate.setDate(closingDate.getDate() - daysToSubtract)
-    closingDate.setHours(23, 59, 59, 999) // 23:59:59.999
+    closingDate.setUTCDate(closingDate.getUTCDate() - daysToSubtract)
 
-    return closingDate
+    // Construir data com horário explícito em BRT (UTC-3)
+    // Isso garante 23:59 no horário de Brasília independente do timezone do servidor
+    const year = closingDate.getUTCFullYear()
+    const month = String(closingDate.getUTCMonth() + 1).padStart(2, '0')
+    const day = String(closingDate.getUTCDate()).padStart(2, '0')
+
+    return new Date(`${year}-${month}-${day}T23:59:59.999-03:00`)
 }
 
 /**
@@ -119,9 +120,14 @@ export function getClosingDate(raceDate: Date): Date {
  */
 export function getOpeningDate(raceDate: Date): Date {
     const openingDate = new Date(raceDate)
-    openingDate.setDate(openingDate.getDate() - 5)
-    openingDate.setHours(0, 0, 0, 0) // Meia-noite
-    return openingDate
+    openingDate.setUTCDate(openingDate.getUTCDate() - 5)
+
+    // Construir data com horário explícito em BRT (UTC-3)
+    const year = openingDate.getUTCFullYear()
+    const month = String(openingDate.getUTCMonth() + 1).padStart(2, '0')
+    const day = String(openingDate.getUTCDate()).padStart(2, '0')
+
+    return new Date(`${year}-${month}-${day}T00:00:00.000-03:00`)
 }
 
 /**
