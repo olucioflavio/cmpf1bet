@@ -8,25 +8,21 @@ export async function submitRaceResults(formData: FormData): Promise<void> {
     const supabase = createAdminClient()
 
     const raceId = parseInt(formData.get('raceId') as string)
-    const pole = formData.get('pole')
-    const p1 = formData.get('p1')
-    const p2 = formData.get('p2')
-    const p3 = formData.get('p3')
-    const p4 = formData.get('p4')
-    const p5 = formData.get('p5')
-    const bortoleto = formData.get('bortoleto')
-    const variable = formData.get('variable')
+    const getVal = (name: string) => {
+        const val = formData.get(name)
+        return (val === "" || val === null) ? null : val
+    }
 
     const resultsData = {
         race_id: raceId,
-        pole_driver_id: pole,
-        p1_driver_id: p1,
-        p2_driver_id: p2,
-        p3_driver_id: p3,
-        p4_driver_id: p4,
-        p5_driver_id: p5,
-        bortoleto_pos: bortoleto,
-        variable_driver_pos: variable
+        pole_driver_id: getVal('pole'),
+        p1_driver_id: getVal('p1'),
+        p2_driver_id: getVal('p2'),
+        p3_driver_id: getVal('p3'),
+        p4_driver_id: getVal('p4'),
+        p5_driver_id: getVal('p5'),
+        bortoleto_pos: getVal('bortoleto'),
+        variable_driver_pos: getVal('variable')
     }
 
     // Check if results already exist

@@ -75,7 +75,7 @@ SELECT r.name, r.date::timestamptz, r.track, r.status, r.is_test_race
 FROM (VALUES
   ('Bahrain Pre-Season Test 1', '2026-02-13 12:00:00+00', 'Bahrain International Circuit', 'scheduled', true),
   ('Bahrain Pre-Season Test 2', '2026-02-20 12:00:00+00', 'Bahrain International Circuit', 'scheduled', true),
-  ('Australian Grand Prix', '2026-03-08 05:00:00+00', 'Albert Park Circuit', 'scheduled', false),
+  ('Australian Grand Prix', '2026-03-08 04:00:00+00', 'Albert Park Circuit', 'scheduled', false),
   ('Chinese Grand Prix', '2026-03-15 07:00:00+00', 'Shanghai International Circuit', 'scheduled', false),
   ('Japanese Grand Prix', '2026-03-29 05:00:00+00', 'Suzuka International Racing Course', 'scheduled', false),
   ('Bahrain Grand Prix', '2026-04-12 15:00:00+00', 'Bahrain International Circuit', 'scheduled', false),

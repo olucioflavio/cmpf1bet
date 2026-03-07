@@ -67,7 +67,6 @@ export default async function RaceResultsPage(props: {
                         name="pole"
                         defaultValue={existingResults?.pole_driver_id || ""}
                         className="w-full p-3 rounded-md bg-slate-900 border border-slate-600 text-white focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none"
-                        required
                     >
                         <option value="" className="bg-slate-900 text-slate-400">Selecione o piloto</option>
                         {drivers?.map((d) => (
@@ -93,7 +92,6 @@ export default async function RaceResultsPage(props: {
                                     name={`p${pos}`}
                                     defaultValue={existingResults?.[`p${pos}_driver_id`] || ""}
                                     className="flex-1 p-2 rounded-md bg-slate-900 border border-slate-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                                    required
                                 >
                                     <option value="" className="bg-slate-900 text-slate-400">Selecione o piloto</option>
                                     {drivers?.map((d) => (
@@ -122,7 +120,6 @@ export default async function RaceResultsPage(props: {
                             defaultValue={existingResults?.bortoleto_pos || ""}
                             className="w-full p-3 rounded-md bg-slate-900 border border-slate-600 text-white placeholder-slate-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
                             placeholder="1-22"
-                            required
                         />
                     </div>
 
@@ -140,7 +137,6 @@ export default async function RaceResultsPage(props: {
                                 defaultValue={existingResults?.variable_driver_pos || ""}
                                 className="w-full p-3 rounded-md bg-slate-900 border border-slate-600 text-white placeholder-slate-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"
                                 placeholder="1-22"
-                                required
                             />
                         </div>
                     )}
